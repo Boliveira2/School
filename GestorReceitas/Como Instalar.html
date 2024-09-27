@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial de Instalação do Gerador de Relatório Mensal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        code {
+            background-color: #f9f9f9;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: "Courier New", Courier, monospace;
+        }
+        pre {
+            background-color: #f9f9f9;
+            border-left: 4px solid #2c3e50;
+            padding: 10px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Tutorial de Instalação do Gerador de Relatório Mensal</h1>
+
+<h2>Requisitos</h2>
+<p>Antes de começar, você precisará de:</p>
+<ul>
+    <li><strong>Python</strong>: Versão 3.6 ou superior</li>
+    <li><strong>pip</strong>: Gerenciador de pacotes para Python</li>
+    <li><strong>PowerShell</strong>: Para executar o script <code>GerarAnual.ps1</code></li>
+    <li><strong>Editor de Código</strong>: Qualquer editor de código de sua escolha (Visual Studio Code, PyCharm, etc.)</li>
+    <li><strong>Ficheiros de Entrada</strong>: <code>alunos.csv</code>, <code>precos.csv</code>, <code>CAF.xlsx</code></li>
+</ul>
+
+<h2>Passo 1: Instalar Python</h2>
+<ol>
+    <li>
+        <strong>Download do Python</strong>:
+        <p>Acesse o <a href="https://www.python.org/downloads/" target="_blank">site oficial do Python</a> e baixe a versão mais recente do Python (3.6 ou superior). Você pode baixar diretamente clicando <a href="https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe" target="_blank">aqui para Windows</a> ou <a href="https://www.python.org/ftp/python/3.10.11/python-3.10.11-macos11.pkg" target="_blank">aqui para macOS</a>.</p>
+    </li>
+    <li>
+        <strong>Instalação</strong>:
+        <p>Execute o instalador e certifique-se de marcar a opção <strong>"Add Python to PATH"</strong> durante a instalação. Complete a instalação seguindo as instruções na tela.</p>
+    </li>
+</ol>
+
+<h2>Passo 2: Verificar a Instalação do Python</h2>
+<p>Após a instalação, verifique se o Python e o pip estão instalados corretamente:</p>
+<pre><code>python --version
+pip --version</code></pre>
+
+<p>Você deve ver a versão instalada do Python e do pip.</p>
+
+<h2>Passo 3: Criar um Ambiente Virtual (Opcional)</h2>
+<p>Um ambiente virtual ajuda a manter as dependências do seu projeto isoladas de outros projetos Python.</p>
+<ol>
+    <li>No terminal, navegue até a pasta onde você deseja criar o projeto:
+        <pre><code>cd caminho/para/seu/projeto</code></pre>
+    </li>
+    <li>Crie um ambiente virtual:
+        <pre><code>python -m venv env</code></pre>
+    </li>
+    <li>Ative o ambiente virtual:
+        <ul>
+            <li><strong>Windows</strong>:
+                <pre><code>.\env\Scripts\activate</code></pre>
+            </li>
+            <li><strong>macOS/Linux</strong>:
+                <pre><code>source env/bin/activate</code></pre>
+            </li>
+        </ul>
+    </li>
+</ol>
+
+<h2>Passo 4: Instalar as Bibliotecas Necessárias</h2>
+<p>Instale as bibliotecas necessárias usando o pip. No terminal, execute:</p>
+<pre><code>pip install pandas openpyxl</code></pre>
+
+<h3>Bibliotecas Explicadas</h3>
+<ul>
+    <li><strong>pandas</strong>: Biblioteca poderosa para manipulação de dados.</li>
+    <li><strong>openpyxl</strong>: Biblioteca para ler e escrever ficheiros Excel (<code>.xlsx</code>).</li>
+</ul>
+
+<h2>Passo 5: Instalar o PowerShell e o Módulo ImportExcel</h2>
+<ol>
+    <li>
+        <strong>PowerShell</strong>:
+        <p>O PowerShell geralmente já está instalado no Windows. Para verificar, procure por "PowerShell" no menu iniciar.</p>
+    </li>
+    <li>
+        <strong>Instalar o Módulo ImportExcel</strong>:
+        <p>Abra o PowerShell como administrador e execute o seguinte comando:</p>
+        <pre><code>Install-Module -Name ImportExcel -Scope CurrentUser</code></pre>
+    </li>
+</ol>
+
+<h2>Passo 6: Criar os Ficheiros de Entrada Usando o Script</h2>
+<p>Utilize o script <code>GerarAnual.ps1</code> que deve estar na mesma diretoria onde estão os ficheiros <code>alunos.csv</code> e <code>precos.csv</code> para criar os ficheiros de entrada. Este script irá gerar os ficheiros de Excel necessários para cada mês do ano letivo.</p>
+
+<h2>Passo 7: Execução do Script</h2>
+<p>Para executar o script, abra o PowerShell na diretoria correta e execute:</p>
+<pre><code>.\GerarAnual.ps1</code></pre>
+
+<p>Após a execução, serão criados diretórios para cada mês e os respetivos ficheiros de Excel dentro desses diretórios.</p>
+
+<h2>Conclusão</h2>
+<p>Parabéns! Você configurou com sucesso o Gerador de Relatório Mensal. Agora você pode usar os ficheiros gerados para gerir as atividades dos alunos de forma eficaz.</p>
+
+</body>
+<footer>
+	<p>© 2024 Associação de Pais Escola Feira Nova. Todos os direitos reservados.</p>
+</footer>
+
+</html>

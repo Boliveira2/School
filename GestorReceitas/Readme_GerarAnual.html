@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentação do Ficheiro GerarAnual.ps1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        pre {
+            background-color: #f9f9f9;
+            border-left: 4px solid #2c3e50;
+            padding: 10px;
+            overflow: auto;
+        }
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Documentação do Ficheiro GerarAnual.ps1</h1>
+
+<h2>Descrição</h2>
+<p>O ficheiro <code>GerarAnual.ps1</code> é um script em PowerShell utilizado para gerar os ficheiros de Excel necessários para a gestão das atividades dos alunos ao longo do ano letivo. Este script cria pastas para cada mês e gera os respetivos ficheiros de <strong>CAF</strong>, <strong>Dança</strong> e <strong>Lanche</strong> com a estrutura correta.</p>
+
+<h2>Pré-requisitos</h2>
+<table>
+    <tr>
+        <th>Pré-requisito</th>
+        <th>Descrição</th>
+    </tr>
+    <tr>
+        <td><strong>PowerShell</strong></td>
+        <td>Deve estar instalado (normalmente já vem com o Windows).</td>
+    </tr>
+    <tr>
+        <td><strong>Módulo ImportExcel</strong></td>
+        <td>Permite a manipulação de ficheiros Excel. Deve ser instalado através do PowerShell com o comando:</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><pre><code>Install-Module -Name ImportExcel -Scope CurrentUser</code></pre></td>
+    </tr>
+    <tr>
+        <td><strong>Ficheiros de Entrada</strong></td>
+        <td>O script requer um ficheiro <code>alunos.csv</code> que contém a lista de alunos e um ficheiro <code>precos.csv</code> com as informações de preços.</td>
+    </tr>
+</table>
+
+<h2>Funcionamento do Script</h2>
+<p>O script realiza as seguintes operações:</p>
+<ol>
+    <li>Importa os dados dos alunos a partir do ficheiro <code>alunos.csv</code>.</li>
+    <li>Verifica se o ficheiro contém a coluna <strong>Nome</strong>.</li>
+    <li>Criar um diretório para cada mês do ano letivo, de setembro a julho.</li>
+    <li>Gera três tipos de ficheiros para cada mês:
+        <ul>
+            <li><strong>CAF.xlsx</strong>: Contém os alunos, os seus identificadores e os dias do mês.</li>
+            <li><strong>Danca.xlsx</strong>: Contém apenas os alunos e a informação sobre se frequentam ou não as aulas de dança.</li>
+            <li><strong>Lanche.xlsx</strong>: Similar ao ficheiro de dança, mas para o lanche.</li>
+        </ul>
+    </li>
+    <li>Exporta os dados para os respetivos ficheiros Excel, organizados por mês.</li>
+</ol>
+
+<h2>Estrutura do Ficheiro de Entrada</h2>
+<table>
+    <tr>
+        <th>Coluna</th>
+        <th>Descrição</th>
+    </tr>
+    <tr>
+        <td><strong>Nome</strong></td>
+        <td>Nome do aluno.</td>
+    </tr>
+    <tr>
+        <td><strong>Contribuinte</strong></td>
+        <td>Número de identificação do contribuinte do aluno.</td>
+    </tr>
+</table>
+
+<p>O ficheiro <code>alunos.csv</code> deve ter a seguinte estrutura:</p>
+<table>
+    <tr>
+        <th>Nome</th>
+        <th>Contribuinte</th>
+    </tr>
+    <tr>
+        <td>João Silva</td>
+        <td>500234123</td>
+    </tr>
+    <tr>
+        <td>Maria Oliveira</td>
+        <td>500234124</td>
+    </tr>
+    <tr>
+        <td>...</td>
+        <td>...</td>
+    </tr>
+</table>
+
+<h2>Execução do Script</h2>
+<p>Para executar o script, siga os seguintes passos:</p>
+<ol>
+    <li>Abra o PowerShell.</li>
+    <li>Navegue até a diretoria onde está localizado o ficheiro <code>GerarAnual.ps1</code>:</li>
+    <pre><code>cd caminho/para/a/diretoria</code></pre>
+    <li>Execute o script com o seguinte comando:</li>
+    <pre><code>.\GerarAnual.ps1</code></pre>
+</ol>
+<p>Após a execução, pastas para cada mês e os respetivos ficheiros de Excel serão gerados na diretoria atual.</p>
+
+<h2>Conclusão</h2>
+<p>Este script permite a geração automática dos ficheiros necessários para gerir as atividades dos alunos, facilitando a organização e o acompanhamento das atividades ao longo do ano letivo.</p>
+
+<footer>
+    <p>© 2024 Associação de Pais Escola Feira Nova. Todos os direitos reservados.</p>
+</footer>
+
+</body>
+</html>

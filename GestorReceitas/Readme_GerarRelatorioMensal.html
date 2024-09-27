@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentação do Ficheiro de Relatório Mensal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        pre {
+            background-color: #f9f9f9;
+            border-left: 4px solid #2c3e50;
+            padding: 10px;
+            overflow: auto;
+        }
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Documentação do Ficheiro de Relatório Mensal</h1>
+
+<h2>Descrição</h2>
+<p>Este script em Python é utilizado para gerar relatórios mensais para a Associação de Pais Escola da Feira Nova. O relatório inclui informações sobre o acolhimento, prolongamento, dança e lanche dos alunos, calculando os custos e apresentando um saldo atualizado.</p>
+
+<h2>Bibliotecas Utilizadas</h2>
+<table>
+    <tr>
+        <th>Biblioteca</th>
+        <th>Descrição</th>
+    </tr>
+    <tr>
+        <td><strong>pandas</strong></td>
+        <td>Utilizada para manipulação de dados e leitura/escrita de ficheiros Excel e CSV.</td>
+    </tr>
+    <tr>
+        <td><strong>os</strong></td>
+        <td>Usada para interações com o sistema de ficheiros (criação de caminhos, etc.).</td>
+    </tr>
+    <tr>
+        <td><strong>openpyxl</strong></td>
+        <td>Usada para manipulação de ficheiros Excel.</td>
+    </tr>
+    <tr>
+        <td><strong>shutil</strong></td>
+        <td>Utilizada para operações de cópia de ficheiros.</td>
+    </tr>
+    <tr>
+        <td><strong>datetime</strong></td>
+        <td>Usada para trabalhar com datas e horários.</td>
+    </tr>
+</table>
+
+<h2>Funções Principais</h2>
+
+<h3>1. carregar_ficheiros(mes)</h3>
+<p>Carrega os ficheiros Excel correspondentes ao mês especificado e retorna os dados de acolhimento, prolongamento, dança e lanche.</p>
+
+<h3>2. calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento)</h3>
+<p>Calcula o número de dias de acolhimento com base no contribuinte fornecido.</p>
+
+<h3>3. calcular_nr_dias_prolongamento(contribuinte, caf_prolongamento)</h3>
+<p>Calcula o número de dias de prolongamento com base no contribuinte fornecido.</p>
+
+<h3>4. calcular_custo(nr_dias, preco_unitario)</h3>
+<p>Calcula o custo com base no número de dias e no preço unitário.</p>
+
+<h3>5. calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, precos)</h3>
+<p>Calcula o preço total do CAF com base nos dias de acolhimento e prolongamento e nos preços mensais.</p>
+
+<h3>6. calcular_preco_danca(contribuinte, danca, precos, mes)</h3>
+<p>Calcula o preço para a dança com base na frequência do aluno e nos preços mensais.</p>
+
+<h3>7. calcular_preco_lanche(contribuinte, lanche, precos, mes)</h3>
+<p>Calcula o preço para o lanche com base na frequência do aluno e nos preços mensais.</p>
+
+<h3>8. gerar_relatorioMensal(mes)</h3>
+<p>Gera o relatório mensal para o mês especificado, compilando os dados dos alunos e calculando os preços correspondentes.</p>
+
+<h3>9. obter_mes_anterior(mes)</h3>
+<p>Retorna o mês anterior ao mês especificado.</p>
+
+<h3>10. main()</h3>
+<p>Função principal que interage com o utilizador, permitindo a escolha do mês para gerar o relatório mensal.</p>
+
+<h2>Estrutura dos Ficheiros de Entrada</h2>
+<p>O script depende de dois ficheiros CSV:</p>
+<table>
+    <tr>
+        <th>Ficheiro</th>
+        <th>Descrição</th>
+    </tr>
+    <tr>
+        <td><strong>alunos.csv</strong></td>
+        <td>Contém informações dos alunos, incluindo nome e número de contribuinte.</td>
+    </tr>
+    <tr>
+        <td><strong>precos.csv</strong></td>
+        <td>Contém os preços dos serviços (CAF, dança, lanche) para cada mês.</td>
+    </tr>
+</table>
+
+<h2>Estruturas dos Ficheiros Excel</h2>
+
+<h3>1. CAF.xlsx</h3>
+<p>Este ficheiro contém duas folhas, uma para acolhimento e outra para prolongamento. A estrutura de cada folha é a seguinte:</p>
+<table>
+    <tr>
+        <th>Coluna</th>
+        <th>Descrição</th>
+    </tr>
+    <tr>
+        <td>Contribuinte</td>
+        <td>Número do contribuinte do aluno.</td>
+    </tr>
+    <tr>
+        <td>Data (várias colunas)</td>
+        <td>Colunas representando dias do mês, com a quantidade de presença no acolhimento ou prolongamento.</td>
+    </tr>
+</table>
+
+<h3>2. Danca.xlsx</h3>
+<p>Este ficheiro contém informações sobre os alunos que frequentam aulas de dança. A estrutura é a seguinte:</p>
+<table>
+    <tr>
+        <th>Coluna</th>
+        <th>Descrição</th>
+    </tr>
+    <tr>
+        <td>Contribuinte</td>
+        <td>Número do contribuinte do aluno.</td>
+    </tr>
+    <tr>
+        <td>Frequenta</td>
+        <td>Indicador (0 ou 1) que mostra se o aluno frequenta ou não as aulas de dança.</td>
+    </tr>
+</table>
+
+<h3>3. Lanche.xlsx</h3>
+<p>Este ficheiro contém informações sobre os alunos que frequentam o lanche. A estrutura é a seguinte:</p>
+<table>
+    <tr>
+        <th>Coluna</th>
+        <th>Descrição</th>
+    </tr>
+    <tr>
+        <td>Contribuinte</td>
+        <td>Número do contribuinte do aluno.</td>
+    </tr>
+    <tr>
+        <td>Frequenta</td>
+        <td>Indicador (0 ou 1) que mostra se o aluno frequenta ou não o lanche.</td>
+    </tr>
+</table>
+
+<h2>Exemplo de Estrutura de alunos.csv</h2>
+<table>
+    <tr>
+        <th>Nome</th>
+        <th>Contribuinte</th>
+    </tr>
+    <tr>
+        <td>João Silva</td>
+        <td>500234123</td>
+    </tr>
+    <tr>
+        <td>Maria Oliveira</td>
+        <td>500234124</td>
+    </tr>
+</table>
+
+<h2>Exemplo de Estrutura de precos.csv</h2>
+<table>
+    <tr>
+        <th>Mês</th>
+        <th>Preço CAF Acolhimento</th>
+        <th>Preço CAF Prolongamento</th>
+        <th>Preço CAF</th>
+        <th>Preço Dança</th>
+        <th>Preço Lanche</th>
+    </tr>
+    <tr>
+        <td>Janeiro</td>
+        <td>50</td>
+        <td>30</td>
+        <td>70</td>
+        <td>40</td>
+        <td>20</td>
+    </tr>
+</table>
+
+<h2>Execução do Script</h2>
+<p>Para executar o script, siga os seguintes passos:</p>
+<ol>
+    <li>Abra um terminal Python.</li>
+    <li>Certifique-se de que os ficheiros <code>alunos.csv</code> e <code>precos.csv</code> estão na mesma diretoria que o script.</li>
+    <li>Execute o script com o seguinte comando:</li>
+    <pre><code>python nome_do_script.py</code></pre>
+    <li>Siga as instruções no terminal para escolher o mês e gerar o relatório.</li>
+</ol>
+
+<h2>Conclusão</h2>
+<p>Este script permite a geração automática de relatórios mensais, facilitando a gestão financeira das atividades da Associação de Pais Escola da Feira Nova.</p>
+
+<footer>
+    <p>© 2024 Associação de Pais Escola Feira Nova. Todos os direitos reservados.</p>
+</footer>
+
+</body>
+</html>
