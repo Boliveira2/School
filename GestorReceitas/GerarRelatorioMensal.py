@@ -4,6 +4,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 from openpyxl.formatting.rule import CellIsRule
+from openpyxl.utils import get_column_letter
 import shutil
 from datetime import datetime
 
@@ -136,6 +137,38 @@ def gerar_relatorioMensal(mes):
 
     caminho_relatorio = os.path.join(mes, f'relatorioMensal_{mes}.xlsx')
 
+    with pd.ExcelWriter(caminho_relatorio, engine='openpyxl') as writer:
+        df_saida.to_excel(writer, index=False, sheet_name='relatorioMensal')
+
+        # Acessando a planilha do Excel para formatar
+        workbook = writer.book
+        worksheet = writer.sheets['relatorioMensal']
+
+        # Definir larguras das colunas
+        column_widths = {
+            'A':  12.3,  # Nome
+            'B':  12.3,  # Associado
+            'C':  12.3,  # Contribuinte
+            'D':  12.3,  # Nr Acolhimento
+            'E':  12.3,  # Nr Prolongamento
+            'F':  12.3,  # Preco CAF
+            'G':  12.3,  # Preco Danca
+            'H':  12.3,  # Preco Lanche
+            'I':  12.3,  # Valor Recebido
+            'J':  12.3,  # Saldo Anterior
+            'K':  12.3   # Saldo
+        }
+
+        # Aplicar larguras de coluna
+        for col, width in column_widths.items():
+            worksheet.column_dimensions[col].width = width
+
+        # OCULTAR as colunas E e F (Nr Prolongamento e Preco CAF neste caso)
+        cols_to_hide = ['F', 'G', 'H']  # Colunas que você deseja ocultar
+        for col in cols_to_hide:
+            worksheet.column_dimensions[col].hidden = True
+
+
     # Backup do relatório se já existir
     if os.path.exists(caminho_relatorio):
         # Criar um nome de backup com timestamp
@@ -149,9 +182,6 @@ def gerar_relatorioMensal(mes):
         workbook = writer.book
         worksheet = writer.sheets['relatorioMensal']
     
-        # Definindo as larguras das colunas
-        for column in worksheet.columns:
-            worksheet.column_dimensions[column[0].column_letter].width = 12.3
         worksheet.row_dimensions[1].height = 33.75  # Largura da linha de cabeçalho
         for row in range(2, len(dados_saida) + 2):
             worksheet.row_dimensions[row].height = 15  # Largura das outras linhas
