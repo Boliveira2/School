@@ -99,7 +99,7 @@ def gerar_relatorio(alunos, alunos_dvidos, alunos_negativos_consecutivos):
 # Função principal
 def main():
     relatorio_path = os.getcwd()  # Usar o caminho atual do diretório onde o script está executando
-    alunos_path = 'alunos.csv'  # Caminho para o arquivo CSV de alunos
+    alunos_path = 'InputFiles/alunos.csv'  # Caminho para o arquivo CSV de alunos
 
     # Carregar todos os relatórios
     alunos = carregar_dados(relatorio_path)

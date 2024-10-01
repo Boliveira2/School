@@ -83,8 +83,8 @@ def calcular_preco_lanche(contribuinte, lanche, precos, mes, associado):
 def gerar_relatorioMensal(mes):
     caf_acolhimento, caf_prolongamento, danca, lanche = carregar_ficheiros(mes)
     
-    alunos = pd.read_csv('alunos.csv', sep=';')
-    precos = pd.read_csv('precos.csv', sep=';')  
+    alunos = pd.read_csv('InputFiles/alunos.csv', sep=';')
+    precos = pd.read_csv('InputFiles/precos.csv', sep=';')  
 
     dados_saida = []
 
