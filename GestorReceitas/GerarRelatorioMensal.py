@@ -33,32 +33,49 @@ def calcular_nr_dias_prolongamento(contribuinte, caf_prolongamento):
 def calcular_custo(nr_dias, preco_unitario):
     return min(nr_dias * 2, preco_unitario)
 
-def calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, precos):
+def calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, precos, associado):
     nr_acolhimento = calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento)
     nr_prolongamento = calcular_nr_dias_prolongamento(contribuinte, caf_prolongamento)
     
     precos['Mês'] = precos['Mês'].str.strip().str.lower()
     mes = mes.strip().lower()
-
-    preco_acolhimento = precos[precos['Mês'] == mes]['Preço CAF Acolhimento'].values[0]
-    preco_prolongamento = precos[precos['Mês'] == mes]['Preço CAF Prolongamento'].values[0]
-    preco_caf = precos[precos['Mês'] == mes]['Preço CAF'].values[0]
-
-    custo_acolhimento = calcular_custo(nr_acolhimento, preco_acolhimento)
-    custo_prolongamento = calcular_custo(nr_prolongamento, preco_prolongamento)
+    
+   
+    if (associado == 0):
+        preco_acolhimento = precos[precos['Mês'] == mes]['Preço CAF Acolhimento'].values[0]
+        preco_prolongamento = precos[precos['Mês'] == mes]['Preço CAF Prolongamento'].values[0]
+        preco_caf = precos[precos['Mês'] == mes]['Preço CAF'].values[0]
+        
+        custo_acolhimento = calcular_custo(nr_acolhimento, preco_acolhimento)
+        custo_prolongamento = calcular_custo(nr_prolongamento, preco_prolongamento)
+    else:
+        preco_acolhimento = precos[precos['Mês'] == mes]['Preço CAF Acolhimento Associado'].values[0]
+        preco_prolongamento = precos[precos['Mês'] == mes]['Preço CAF Prolongamento Associado'].values[0]
+        preco_caf = precos[precos['Mês'] == mes]['Preço CAF Associado'].values[0]
+        
+        custo_acolhimento = calcular_custo(nr_acolhimento, preco_acolhimento)
+        custo_prolongamento = calcular_custo(nr_prolongamento, preco_prolongamento)
 
     return min(custo_acolhimento + custo_prolongamento, preco_caf)
 
-def calcular_preco_danca(contribuinte, danca, precos, mes):
+def calcular_preco_danca(contribuinte, danca, precos, mes, associado):
     aluno_danca = danca[danca['Contribuinte'] == contribuinte]
-    if not aluno_danca.empty and aluno_danca['Frequenta'].values[0] == 1:
-        return precos[precos['Mês'] == mes]['Preço Dança'].values[0]
+    if not aluno_danca.empty:
+        if (associado == 0):
+            return precos[precos['Mês'] == mes]['Preço Dança'].values[0]
+        else:
+            return precos[precos['Mês'] == mes]['Preço Dança Associado'].values[0]
     return 0
 
-def calcular_preco_lanche(contribuinte, lanche, precos, mes):
+def calcular_preco_lanche(contribuinte, lanche, precos, mes, associado):
     aluno_lanche = lanche[lanche['Contribuinte'] == contribuinte]
-    if not aluno_lanche.empty and aluno_lanche['Frequenta'].values[0] == 1:
-        return precos[precos['Mês'] == mes]['Preço Lanche'].values[0]
+    if not aluno_lanche.empty:
+        if (associado == 0):
+            return precos[precos['Mês'] == mes]['Preço Lanche'].values[0]
+        else:
+            return precos[precos['Mês'] == mes]['Preço Lanche Associado'].values[0]
+            
+        
     return 0
 
 # Geração de relatório mensal
@@ -85,7 +102,7 @@ def gerar_relatorioMensal(mes):
     for _, aluno in alunos.iterrows():
         nome = aluno['Nome']
         contribuinte = aluno['Contribuinte']
-        
+        associado = aluno['Associado']
         # Obter o saldo anterior do contribuinte do relatório anterior
         if 'Contribuinte' in df_anterior.columns and 'Saldo' in df_anterior.columns:
             saldo_anterior = df_anterior.loc[df_anterior['Contribuinte'] == contribuinte, 'Saldo']
@@ -96,9 +113,9 @@ def gerar_relatorioMensal(mes):
         nr_acolhimento = calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento)
         nr_prolongamento = calcular_nr_dias_prolongamento(contribuinte, caf_prolongamento)
     
-        preco_caf = calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, precos)
-        preco_danca = calcular_preco_danca(contribuinte, danca, precos, mes)
-        preco_lanche = calcular_preco_lanche(contribuinte, lanche, precos, mes)
+        preco_caf = calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, precos, associado)
+        preco_danca = calcular_preco_danca(contribuinte, danca, precos, mes, associado)
+        preco_lanche = calcular_preco_lanche(contribuinte, lanche, precos, mes, associado)
         
         valor_recebido = ''  # Deixamos em branco para inserção manual
     
@@ -108,13 +125,13 @@ def gerar_relatorioMensal(mes):
         # Ajustar fórmula para o saldo
         saldo_formula = f"=H{len(dados_saida) + 2} + I{len(dados_saida) + 2} - (E{len(dados_saida) + 2} + F{len(dados_saida) + 2} + G{len(dados_saida) + 2})"
     
-        dados_saida.append([nome, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido, saldo_anterior, saldo_formula])
+        dados_saida.append([nome, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido, saldo_anterior, saldo_formula])
 
 
 
     # Converter para DataFrame
     df_saida = pd.DataFrame(dados_saida, columns=[
-        'Nome', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Valor Recebido', 'Saldo Anterior', 'Saldo'
+        'Nome', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Valor Recebido', 'Saldo Anterior', 'Saldo'
     ])
 
     caminho_relatorio = os.path.join(mes, f'relatorioMensal_{mes}.xlsx')
