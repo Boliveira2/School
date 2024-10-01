@@ -161,7 +161,7 @@ def gerar_relatorioMensal(mes):
             cell.alignment = cell.alignment.copy(wrap_text=True)
     
         # Formatação de moeda para as colunas especificadas
-        colunas_moeda = [5, 6, 7, 8, 9, 10]  # Índices das colunas para PrecoCAF, PrecoDanca, PrecoLanche, ValorRecebido, SaldoAnterior, Saldo
+        colunas_moeda = [6, 7, 8, 9, 10, 11]  # Índices das colunas para PrecoCAF, PrecoDanca, PrecoLanche, ValorRecebido, SaldoAnterior, Saldo
     
         for col in colunas_moeda:
             for row in range(2, len(dados_saida) + 2):
@@ -170,10 +170,10 @@ def gerar_relatorioMensal(mes):
     
         # Formatação condicional para a coluna "Saldo"
         for row in range(2, len(dados_saida) + 2):
-            saldo_cell = worksheet.cell(row=row, column=10)  # Coluna "Saldo" é a 10ª
+            saldo_cell = worksheet.cell(row=row, column=11)  # Coluna "Saldo" é a 11ª
             saldo_cell.font = Font(color="0000FF")  # Padrão azul
             
-            saldoAnterior_cell = worksheet.cell(row=row, column=9)  # Coluna "SaldoAnterior" é a 9ª
+            saldoAnterior_cell = worksheet.cell(row=row, column=10)  # Coluna "SaldoAnterior" é a 10ª
             saldoAnterior_cell.font = Font(color="0000FF")  # Padrão azul
         
             # Adicionar formatação condicional para a coluna "Saldo"
