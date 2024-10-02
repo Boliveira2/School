@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentação: Gerador de Transferências com Alunos e Contribuintes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1, h2 {
+      color: #007bff;
+    }
+    p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    code {
+      background-color: #f1f1f1;
+      padding: 5px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Documentação: Gerador de Transferências com Alunos e Contribuintes</h1>
+
+  <h2>Objetivo</h2>
+  <p>Este script serve para processar as transferências e adicionar informações de alunos e contribuintes. Ele gera um arquivo com os seguintes campos:</p>
+  <ul>
+    <li><b>Data Valor</b>: Data da transferência.</li>
+    <li><b>Descrição</b>: Descrição do pagamento.</li>
+    <li><b>Crédito</b>: Valor creditado.</li>
+    <li><b>Aluno</b>: Nome(s) do(s) aluno(s) correspondente(s).</li>
+    <li><b>Contribuinte</b>: NIF do aluno.</li>
+  </ul>
+
+  <h2>Funcionalidade do Script</h2>
+  <p>O script faz três coisas principais:</p>
+  <ol>
+    <li><b>Carregar as transferências</b>: Lê o arquivo de transferências e filtra apenas as informações relevantes.</li>
+    <li><b>Buscar Aluno e Contribuinte</b>: Para cada descrição de transferência, procura o(s) aluno(s) correspondente(s) e o NIF no arquivo `alunos.csv`.</li>
+    <li><b>Gerar o arquivo de saída</b>: Salva os resultados em um arquivo Excel.</li>
+  </ol>
+
+  <h2>Passos para Executar o Script</h2>
+  
+  <h3>Requisitos</h3>
+  <p>Instalar as bibliotecas necessárias com o seguinte comando:</p>
+  <pre><code>pip install pandas openpyxl</code></pre>
+
+  <h3>Estrutura de Arquivos</h3>
+  <ul>
+    <li><b>InputFiles/transferencias.xlsx</b>: Arquivo com as transferências.</li>
+    <li><b>InputFiles/alunos.csv</b>: Arquivo com informações dos alunos (Nome e Contribuinte).</li>
+    <li><b>InputFiles/entradas.xlsx</b>: Arquivo com a aba `entradas` contendo as descrições e alunos.</li>
+  </ul>
+  <p>O arquivo gerado será salvo em:</p>
+  <pre><code>OutputFiles/transferencias_com_alunos_e_contribuintes.xlsx</code></pre>
+
+  <h3>Como Executar</h3>
+  <p>Abra o terminal e execute o script com o seguinte comando:</p>
+  <pre><code>python GerarTransferencias.py</code></pre>
+
+  <h2>Exemplo de Saída</h2>
+  <p>O arquivo gerado terá a seguinte estrutura:</p>
+  <table border="1">
+    <tr>
+      <th>Data Valor</th>
+      <th>Descrição</th>
+      <th>Crédito</th>
+      <th>Aluno</th>
+      <th>Contribuinte</th>
+    </tr>
+    <tr>
+      <td>01/01/2024</td>
+      <td>Pagamento Escola</td>
+      <td>100,00</td>
+      <td>Tomás Cunha</td>
+      <td>123456789</td>
+    </tr>
+    <tr>
+      <td>02/01/2024</td>
+      <td>Pagamento Escola</td>
+      <td>150,00</td>
+      <td>Mateus Cunha, João</td>
+      <td>987654321</td>
+    </tr>
+  </table>
+
+  <h2>Detalhes Técnicos</h2>
+  <p>O script normaliza os nomes dos alunos e contribuintes removendo acentuação, espaços extras e caracteres especiais, para evitar duplicidades e inconsistências.</p>
+
+</body>
+</html>
