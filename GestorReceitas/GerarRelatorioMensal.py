@@ -61,7 +61,7 @@ def calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, pr
 
 def calcular_preco_danca(contribuinte, danca, precos, mes, associado):
     aluno_danca = danca[danca['Contribuinte'] == contribuinte]
-    if not aluno_danca.empty:
+    if not aluno_danca.empty and aluno_danca['Frequenta'].notna().any() and (aluno_danca['Frequenta'] != 0).any():
         if (associado == 0):
             return precos[precos['Mês'] == mes]['Preço Dança'].values[0]
         else:
@@ -70,7 +70,7 @@ def calcular_preco_danca(contribuinte, danca, precos, mes, associado):
 
 def calcular_preco_lanche(contribuinte, lanche, precos, mes, associado):
     aluno_lanche = lanche[lanche['Contribuinte'] == contribuinte]
-    if not aluno_lanche.empty:
+    if not aluno_lanche.empty and aluno_lanche['Frequenta'].notna().any() and (aluno_lanche['Frequenta'] != 0).any():
         if (associado == 0):
             return precos[precos['Mês'] == mes]['Preço Lanche'].values[0]
         else:
@@ -80,7 +80,6 @@ def calcular_preco_lanche(contribuinte, lanche, precos, mes, associado):
     return 0
 
 # Geração de relatório mensal
-# Geração de relatório mensal
 def gerar_relatorioMensal(mes):
     caf_acolhimento, caf_prolongamento, danca, lanche = carregar_ficheiros(mes)
     
@@ -89,21 +88,27 @@ def gerar_relatorioMensal(mes):
 
     dados_saida = []
 
+    # Obter o mês anterior
     mes_anterior = obter_mes_anterior(mes)
     saldo_anterior = 0
+    df_anterior = pd.DataFrame()  # Inicializa df_anterior como um DataFrame vazio
 
     if mes_anterior:
         caminho_relatorio_anterior = os.path.join(mes_anterior, f'relatorioMensal_{mes_anterior}.xlsx')
         print(f"CaminhoMesAnterior. {caminho_relatorio_anterior.capitalize()}")
+        
         if os.path.exists(caminho_relatorio_anterior):
             df_anterior = pd.read_excel(caminho_relatorio_anterior)
             saldo_anterior = df_anterior['Saldo'].sum() if 'Saldo' in df_anterior.columns else 0
             print(f"Saldo Anterior lido: {saldo_anterior}")  # Debug: imprimir saldo anterior
+        else:
+            print(f"Relatório anterior não encontrado para o mês de {mes_anterior}. Saldo anterior será 0.")
 
     for _, aluno in alunos.iterrows():
         nome = aluno['Nome']
         contribuinte = aluno['Contribuinte']
         associado = aluno['Associado']
+        
         # Obter o saldo anterior do contribuinte do relatório anterior
         if 'Contribuinte' in df_anterior.columns and 'Saldo' in df_anterior.columns:
             saldo_anterior = df_anterior.loc[df_anterior['Contribuinte'] == contribuinte, 'Saldo']
@@ -127,8 +132,6 @@ def gerar_relatorioMensal(mes):
         saldo_formula = f"=H{len(dados_saida) + 2} + I{len(dados_saida) + 2} - (E{len(dados_saida) + 2} + F{len(dados_saida) + 2} + G{len(dados_saida) + 2})"
     
         dados_saida.append([nome, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido, saldo_anterior, saldo_formula])
-
-
 
     # Converter para DataFrame
     df_saida = pd.DataFrame(dados_saida, columns=[
@@ -167,7 +170,6 @@ def gerar_relatorioMensal(mes):
         cols_to_hide = ['F', 'G', 'H']  # Colunas que você deseja ocultar
         for col in cols_to_hide:
             worksheet.column_dimensions[col].hidden = True
-
 
     # Backup do relatório se já existir
     if os.path.exists(caminho_relatorio):
@@ -208,16 +210,15 @@ def gerar_relatorioMensal(mes):
         
             # Adicionar formatação condicional para a coluna "Saldo"
             worksheet.conditional_formatting.add(
-                f'J{row}',  # Coluna "Saldo" (J)
+                f'K{row}',  # Coluna "Saldo" (K)
                 CellIsRule(operator='lessThan', formula=['0'], stopIfTrue=True, font=Font(color='FF0000'))  # Vermelho se menor que zero
             )
         
             # Adicionar formatação condicional para a coluna "Saldo Anterior"
             worksheet.conditional_formatting.add(
-                f'I{row}',  # Coluna "Saldo Anterior" (I)
+                f'J{row}',  # Coluna "Saldo Anterior" (J)
                 CellIsRule(operator='lessThan', formula=['0'], stopIfTrue=True, font=Font(color='FF0000'))  # Vermelho se menor que zero
             )
-
 
 # Função para obter o mês anterior
 def obter_mes_anterior(mes):
