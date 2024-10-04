@@ -41,7 +41,7 @@ def calcular_custo(nr_dias, preco_unitario):
 
 def calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, precos, associado):
     nr_acolhimento = calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento)
-    nr_prolongamento = calcular_nr_dias_prolongamento(contribuinte, caf_acolhimentoaf_prolongamento)
+    nr_prolongamento = calcular_nr_dias_prolongamento(contribuinte, caf_prolongamento)
     
     precos['Mês'] = precos['Mês'].str.strip().str.lower()
     mes = mes.strip().lower()
