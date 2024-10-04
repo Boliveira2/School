@@ -129,18 +129,18 @@ def gerar_relatorioMensal(mes):
         preco_lanche = calcular_preco_lanche(contribuinte, lanche, precos, mes, associado)
         
         valor_recebido = ''  # Deixamos em branco para inserção manual
-    
+        recibo = ''  # Deixamos em branco para inserção manual
         # Debug: imprimir valores para verificar se tudo está correto
         print(f"Nome: {nome}, Acolhimento: {nr_acolhimento}, Prolongamento: {nr_prolongamento}, Preco CAF: {preco_caf}, Preco Dança: {preco_danca}, Preco Lanche: {preco_lanche}, Saldo Anterior: {saldo_anterior}")
         
         # Ajustar fórmula para o saldo
         saldo_formula = f"=I{len(dados_saida) + 2} + J{len(dados_saida) + 2} - (F{len(dados_saida) + 2} + G{len(dados_saida) + 2} + H{len(dados_saida) + 2})"
     
-        dados_saida.append([nome, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido, saldo_anterior, saldo_formula])
+        dados_saida.append([nome, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido, saldo_anterior, saldo_formula, recibo])
 
     # Converter para DataFrame
     df_saida = pd.DataFrame(dados_saida, columns=[
-        'Nome', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Valor Recebido', 'Saldo Anterior', 'Saldo'
+        'Nome', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Valor Recebido', 'Saldo Anterior', 'Saldo', 'Recibo'
     ])
 
     caminho_relatorio = os.path.join(mes, f'relatorioMensal_{mes}.xlsx')
@@ -164,7 +164,8 @@ def gerar_relatorioMensal(mes):
             'H':  12.3,  # Preco Lanche
             'I':  12.3,  # Valor Recebido
             'J':  12.3,  # Saldo Anterior
-            'K':  12.3   # Saldo
+            'K':  12.3,  # Saldo
+            'L':  12.3   # Recibo
         }
 
         # Aplicar larguras de coluna
