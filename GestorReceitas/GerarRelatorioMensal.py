@@ -25,18 +25,23 @@ def carregar_ficheiros(mes):
 # Funções de cálculo usando Contribuinte
 def calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento):
     aluno_acolhimento = caf_acolhimento[caf_acolhimento['Contribuinte'] == contribuinte]
-    return aluno_acolhimento.iloc[:, 2:].sum(axis=1).values[0] 
+    if aluno_acolhimento.empty:
+        return 0  # Retorna 0 se o contribuinte não for encontrado
+    return aluno_acolhimento.iloc[:, 2:].replace('falta', 0).sum(axis=1).values[0]  # Substitui "falta" por 0 antes de somar
 
 def calcular_nr_dias_prolongamento(contribuinte, caf_prolongamento):
     aluno_prolongamento = caf_prolongamento[caf_prolongamento['Contribuinte'] == contribuinte]
-    return aluno_prolongamento.iloc[:, 2:].sum(axis=1).values[0] 
+    if aluno_prolongamento.empty:
+        return 0  # Retorna 0 se o contribuinte não for encontrado
+    return aluno_prolongamento.iloc[:, 2:].replace('falta', 0).sum(axis=1).values[0]  # Substitui "falta" por 0 antes de somar
+
 
 def calcular_custo(nr_dias, preco_unitario):
     return min(nr_dias * 2, preco_unitario)
 
 def calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, precos, associado):
     nr_acolhimento = calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento)
-    nr_prolongamento = calcular_nr_dias_prolongamento(contribuinte, caf_prolongamento)
+    nr_prolongamento = calcular_nr_dias_prolongamento(contribuinte, caf_acolhimentoaf_prolongamento)
     
     precos['Mês'] = precos['Mês'].str.strip().str.lower()
     mes = mes.strip().lower()
@@ -129,7 +134,7 @@ def gerar_relatorioMensal(mes):
         print(f"Nome: {nome}, Acolhimento: {nr_acolhimento}, Prolongamento: {nr_prolongamento}, Preco CAF: {preco_caf}, Preco Dança: {preco_danca}, Preco Lanche: {preco_lanche}, Saldo Anterior: {saldo_anterior}")
         
         # Ajustar fórmula para o saldo
-        saldo_formula = f"=H{len(dados_saida) + 2} + I{len(dados_saida) + 2} - (E{len(dados_saida) + 2} + F{len(dados_saida) + 2} + G{len(dados_saida) + 2})"
+        saldo_formula = f"=I{len(dados_saida) + 2} + J{len(dados_saida) + 2} - (F{len(dados_saida) + 2} + G{len(dados_saida) + 2} + H{len(dados_saida) + 2})"
     
         dados_saida.append([nome, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido, saldo_anterior, saldo_formula])
 
