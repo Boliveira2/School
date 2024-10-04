@@ -10,14 +10,14 @@ $alunos = Import-Csv -Path $alunosPath -Delimiter ';' -Encoding UTF8
 
 # Verificar se os dados do CSV têm as colunas corretas
 if ($alunos -and $alunos[0].PSObject.Properties['Nome'] -eq $null) {
-    Write-Host "Erro: O ficheiro CSV nao contem a coluna 'Nome'. Verifique o ficheiro alunos.csv."
+    Write-Host "Erro: O ficheiro CSV não contém a coluna 'Nome'. Verifique o ficheiro alunos.csv."
     exit
 }
 
 # Criar uma lista de meses (de setembro a julho) com os nomes corretos
 $meses = @('Setembro', 'Outubro', 'Novembro', 'Dezembro', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho')
 
-# Função para gerar os ficheiros CAF, Danca e Lanche em pastas separadas
+# Função para gerar os ficheiros CAF, Dança, Lanche e RecebimentosNumerario
 foreach ($mes in $meses) {
     # Criar o diretório para o mês, se não existir
     $mesDir = Join-Path -Path $currentPath -ChildPath $mes
@@ -28,11 +28,12 @@ foreach ($mes in $meses) {
     # Função auxiliar para criar um ficheiro Excel
     function CriarFicheiroExcel {
         param (
-            [string]$tipoAtividade,  # CAF, Danca ou Lanche
+            [string]$tipoAtividade,  # CAF, Dança, Lanche ou RecebimentosNumerario
             [string]$mesDir,
-            [string]$fileName,       # Nome do ficheiro (CAF.xlsx, Danca.xlsx, Lanche.xlsx)
+            [string]$fileName,       # Nome do ficheiro (CAF.xlsx, Danca.xlsx, Lanche.xlsx, etc.)
             [array]$alunos,          # Lista de alunos
-            [bool]$isCAF             # Indica se existe um ficheiro CAF
+            [bool]$isCAF,            # Indica se é o ficheiro CAF
+            [bool]$isRecebimentosNumerario = $false # Indica se é o ficheiro de Recebimentos Numerários
         )
 
         # Definir o caminho do ficheiro
@@ -41,16 +42,39 @@ foreach ($mes in $meses) {
         # Criar uma lista para armazenar as entradas do ficheiro
         $entries = @()
 
-        if ($isCAF) {
+        if ($isRecebimentosNumerario) {
+            # Definir cabeçalhos para Recebimentos Numerário
+            $headers = "Nome", "Turma","Contribuinte", "Data", "CAF", "Lanche", "Dança", "Cota"
+            foreach ($aluno in $alunos) {
+                $entry = [PSCustomObject]@{
+                    Nome = $aluno.Nome
+                    Turma = $aluno.Turma
+                    Contribuinte = $aluno.Contribuinte
+                    Data = ""
+                    CAF = ""
+                    Lanche = ""
+                    Dança = ""
+                    Cota = ""
+                }
+
+                # Adicionar a entrada à lista
+                $entries += $entry
+            }
+
+            # Exportar os dados para um ficheiro Excel
+            $entries | Export-Excel -Path $filePath -WorksheetName "RecebimentosNumerário" -AutoSize
+
+        } elseif ($isCAF) {
             # Para o ficheiro CAF, adicionar cabeçalhos (Nome, Contribuinte e os dias do mês como números)
-            $headers = "Nome", "Contribuinte"
+            $headers = "Nome", "Turma", "Contribuinte"
             $daysOfMonth = 1..31 | ForEach-Object { "$_" }  # Cabeçalhos para os dias
             $allHeaders = $headers + $daysOfMonth
 
             # Criar a estrutura de dados para cada aluno
             foreach ($aluno in $alunos) {
                 $entry = [PSCustomObject]@{
-                    Nome = $aluno.'Nome'
+                    Nome = $aluno.Nome
+                    Turma = $aluno.Turma
                     Contribuinte = $aluno.Contribuinte
                 }
 
@@ -63,22 +87,24 @@ foreach ($mes in $meses) {
                 $entries += $entry
             }
 
-            # Exportar os dados para um ficheiro Excel
+            # Exportar os dados para um ficheiro Excel com as duas planilhas: Acolhimento e Prolongamento
             $entries | Export-Excel -Path $filePath -WorksheetName "Acolhimento" -AutoSize
             $entries | Export-Excel -Path $filePath -WorksheetName "Prolongamento" -AutoSize
+
         } else {
             # Para os ficheiros de Dança e Lanche, adicionar apenas Nome, Contribuinte e Frequenta
-            $headers = "Nome", "Contribuinte", "Frequenta"
+            $headers = "Nome", "Turma", "Contribuinte", "Frequenta"
 
             # Criar a estrutura de dados para cada aluno
             foreach ($aluno in $alunos) {
                 $entry = [PSCustomObject]@{
-                    Nome = $aluno.'Nome'
+                    Nome = $aluno.Nome
+                    Turma = $aluno.Turma
                     Contribuinte = $aluno.Contribuinte
                     Frequenta = ""
                 }
 
-                # Adicionar a entrada na lista
+                # Adicionar a entrada à lista
                 $entries += $entry
             }
 
@@ -86,7 +112,7 @@ foreach ($mes in $meses) {
             $entries | Export-Excel -Path $filePath -WorksheetName $tipoAtividade -AutoSize
         }
 
-        Write-Host "$tipoAtividade gerado com sucesso para o mês: $mes em $filePath"
+        Write-Host "$tipoAtividade gerado com sucesso para o mês: $mesDir"
     }
 
     # Gerar ficheiro para o CAF com dias do mês
@@ -97,4 +123,7 @@ foreach ($mes in $meses) {
 
     # Gerar ficheiro para o Lanche com apenas Nome, Contribuinte e Frequenta
     CriarFicheiroExcel -tipoAtividade "Lanche" -mesDir $mesDir -fileName "Lanche.xlsx" -alunos $alunos -isCAF $false
+
+    # Gerar ficheiro para Recebimentos Numerário
+    CriarFicheiroExcel -tipoAtividade "RecebimentosNumerario" -mesDir $mesDir -fileName "RecebimentosNumerario.xlsx" -alunos $alunos -isCAF $false -isRecebimentosNumerario $true
 }
