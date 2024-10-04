@@ -1,5 +1,6 @@
 pandas
-matplotlib
 openpyxl
 xlsxwriter
 thefuzz
+xlrd # Necessário para leitura de arquivos Excel (.xls)
+unicodedata  # Parte da biblioteca padrão do Python, não precisa ser incluída no requirements.txt
