@@ -22,22 +22,83 @@ def carregar_ficheiros(mes):
 
     return caf_acolhimento, caf_prolongamento, danca, lanche
 
-# Funções de cálculo usando Contribuinte
-def calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento):
-    aluno_acolhimento = caf_acolhimento[caf_acolhimento['Contribuinte'] == contribuinte]
-    if aluno_acolhimento.empty:
-        return 0  # Retorna 0 se o contribuinte não for encontrado
-    return aluno_acolhimento.iloc[:, 2:].replace('falta', 0).sum(axis=1).values[0]  # Substitui "falta" por 0 antes de somar
-
-def calcular_nr_dias_prolongamento(contribuinte, caf_prolongamento):
-    aluno_prolongamento = caf_prolongamento[caf_prolongamento['Contribuinte'] == contribuinte]
-    if aluno_prolongamento.empty:
-        return 0  # Retorna 0 se o contribuinte não for encontrado
-    return aluno_prolongamento.iloc[:, 2:].replace('falta', 0).sum(axis=1).values[0]  # Substitui "falta" por 0 antes de somar
-
-
 def calcular_custo(nr_dias, preco_unitario):
     return min(nr_dias * 2, preco_unitario)
+
+# Função para calcular número de dias de acolhimento
+def calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento):
+    # Remove espaços extras dos nomes das colunas e garante que o contribuinte seja uma string
+    caf_acolhimento.columns = caf_acolhimento.columns.str.strip()
+    caf_acolhimento['Contribuinte'] = caf_acolhimento['Contribuinte'].astype(str).str.strip()
+
+    # Procura pelo contribuinte no DataFrame
+    aluno_acolhimento = caf_acolhimento[caf_acolhimento['Contribuinte'] == str(contribuinte).strip()]
+    
+    # Se o contribuinte não for encontrado, retorna 0
+    if aluno_acolhimento.empty:
+        print(f"Nenhum registro encontrado para o contribuinte: {contribuinte}")
+        return 0
+
+    #print(f"Registros encontrados para {contribuinte}: {aluno_acolhimento}")
+    
+    # Substitui "falta" por 0, preenche NaN com 0, e soma os valores nas colunas de dias
+    return aluno_acolhimento.iloc[:, 2:].replace('falta', 0).fillna(0).sum(axis=1).values[0]
+
+# Função para calcular número de dias de prolongamento
+def calcular_nr_dias_prolongamento(contribuinte, caf_prolongamento):
+    # Remove espaços extras dos nomes das colunas e garante que o contribuinte seja uma string
+    caf_prolongamento.columns = caf_prolongamento.columns.str.strip()
+    caf_prolongamento['Contribuinte'] = caf_prolongamento['Contribuinte'].astype(str).str.strip()
+
+    # Procura pelo contribuinte no DataFrame
+    aluno_prolongamento = caf_prolongamento[caf_prolongamento['Contribuinte'] == str(contribuinte).strip()]
+    
+    # Se o contribuinte não for encontrado, retorna 0
+    if aluno_prolongamento.empty:
+        print(f"Nenhum registro encontrado para o contribuinte: {contribuinte}")
+        return 0
+
+    #print(f"Registros encontrados para {contribuinte}: {aluno_prolongamento}")
+    
+    # Substitui "falta" por 0, preenche NaN com 0, e soma os valores nas colunas de dias
+    return aluno_prolongamento.iloc[:, 2:].replace('falta', 0).fillna(0).sum(axis=1).values[0]
+
+# Função para calcular o preço de Dança
+def calcular_preco_danca(contribuinte, danca, precos, mes, associado):
+    # Remove espaços extras dos nomes das colunas e garante que o contribuinte seja uma string
+    danca.columns = danca.columns.str.strip()
+    danca['Contribuinte'] = danca['Contribuinte'].astype(str).str.strip()
+
+    # Procura pelo contribuinte no DataFrame
+    aluno_danca = danca[danca['Contribuinte'] == str(contribuinte).strip()]
+    
+    # Se o aluno frequenta dança, retorna o preço
+    if not aluno_danca.empty and aluno_danca['Frequenta'].notna().any() and (aluno_danca['Frequenta'] != 0).any():
+        if associado == 0:
+            return precos[precos['Mês'] == mes]['Preço Dança'].values[0]
+        else:
+            return precos[precos['Mês'] == mes]['Preço Dança Associado'].values[0]
+    
+    return 0
+
+# Função para calcular o preço de Lanche
+def calcular_preco_lanche(contribuinte, lanche, precos, mes, associado):
+    # Remove espaços extras dos nomes das colunas e garante que o contribuinte seja uma string
+    lanche.columns = lanche.columns.str.strip()
+    lanche['Contribuinte'] = lanche['Contribuinte'].astype(str).str.strip()
+
+    # Procura pelo contribuinte no DataFrame
+    aluno_lanche = lanche[lanche['Contribuinte'] == str(contribuinte).strip()]
+    
+    # Se o aluno frequenta lanche, retorna o preço
+    if not aluno_lanche.empty and aluno_lanche['Frequenta'].notna().any() and (aluno_lanche['Frequenta'] != 0).any():
+        if associado == 0:
+            return precos[precos['Mês'] == mes]['Preço Lanche'].values[0]
+        else:
+            return precos[precos['Mês'] == mes]['Preço Lanche Associado'].values[0]
+    
+    return 0
+
 
 def calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, precos, associado):
     nr_acolhimento = calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento)
@@ -64,25 +125,6 @@ def calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, pr
 
     return min(custo_acolhimento + custo_prolongamento, preco_caf)
 
-def calcular_preco_danca(contribuinte, danca, precos, mes, associado):
-    aluno_danca = danca[danca['Contribuinte'] == contribuinte]
-    if not aluno_danca.empty and aluno_danca['Frequenta'].notna().any() and (aluno_danca['Frequenta'] != 0).any():
-        if (associado == 0):
-            return precos[precos['Mês'] == mes]['Preço Dança'].values[0]
-        else:
-            return precos[precos['Mês'] == mes]['Preço Dança Associado'].values[0]
-    return 0
-
-def calcular_preco_lanche(contribuinte, lanche, precos, mes, associado):
-    aluno_lanche = lanche[lanche['Contribuinte'] == contribuinte]
-    if not aluno_lanche.empty and aluno_lanche['Frequenta'].notna().any() and (aluno_lanche['Frequenta'] != 0).any():
-        if (associado == 0):
-            return precos[precos['Mês'] == mes]['Preço Lanche'].values[0]
-        else:
-            return precos[precos['Mês'] == mes]['Preço Lanche Associado'].values[0]
-            
-        
-    return 0
 
 # Geração de relatório mensal
 def gerar_relatorioMensal(mes):
@@ -90,24 +132,25 @@ def gerar_relatorioMensal(mes):
     
     alunos = pd.read_csv('InputFiles/alunos.csv', sep=';')
     precos = pd.read_csv('InputFiles/precos.csv', sep=';')  
-
+    #TODO: adicionar recolha de dados do ficheiro RecebimentosNumerario.xls e imprimir para ficheiro output
     dados_saida = []
 
     # Obter o mês anterior
     mes_anterior = obter_mes_anterior(mes)
     saldo_anterior = 0
     df_anterior = pd.DataFrame()  # Inicializa df_anterior como um DataFrame vazio
+    #print(caf_acolhimento['Contribuinte'].unique())  # Ver os contribuintes no DataFrame
 
     if mes_anterior:
         caminho_relatorio_anterior = os.path.join(mes_anterior, f'relatorioMensal_{mes_anterior}.xlsx')
-        print(f"CaminhoMesAnterior. {caminho_relatorio_anterior.capitalize()}")
+        #print(f"CaminhoMesAnterior. {caminho_relatorio_anterior.capitalize()}")
         
         if os.path.exists(caminho_relatorio_anterior):
             df_anterior = pd.read_excel(caminho_relatorio_anterior)
             saldo_anterior = df_anterior['Saldo'].sum() if 'Saldo' in df_anterior.columns else 0
-            print(f"Saldo Anterior lido: {saldo_anterior}")  # Debug: imprimir saldo anterior
+            #print(f"Saldo Anterior lido: {saldo_anterior}")  # Debug: imprimir saldo anterior
         else:
-            print(f"Relatório anterior não encontrado para o mês de {mes_anterior}. Saldo anterior será 0.")
+            #print(f"Relatório anterior não encontrado para o mês de {mes_anterior}. Saldo anterior será 0.")
 
     for _, aluno in alunos.iterrows():
         nome = aluno['Nome']
@@ -131,7 +174,8 @@ def gerar_relatorioMensal(mes):
         valor_recebido = ''  # Deixamos em branco para inserção manual
         recibo = ''  # Deixamos em branco para inserção manual
         # Debug: imprimir valores para verificar se tudo está correto
-        print(f"Nome: {nome}, Acolhimento: {nr_acolhimento}, Prolongamento: {nr_prolongamento}, Preco CAF: {preco_caf}, Preco Dança: {preco_danca}, Preco Lanche: {preco_lanche}, Saldo Anterior: {saldo_anterior}")
+        
+        #print(f"Nome: {nome}, Acolhimento: {nr_acolhimento}, Prolongamento: {nr_prolongamento}, Preco CAF: {preco_caf}, Preco Dança: {preco_danca}, Preco Lanche: {preco_lanche}, Saldo Anterior: {saldo_anterior}")
         
         # Ajustar fórmula para o saldo
         saldo_formula = f"=I{len(dados_saida) + 2} + J{len(dados_saida) + 2} - (F{len(dados_saida) + 2} + G{len(dados_saida) + 2} + H{len(dados_saida) + 2})"
