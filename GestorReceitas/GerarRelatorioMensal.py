@@ -131,38 +131,29 @@ def gerar_relatorioMensal(mes):
     caf_acolhimento, caf_prolongamento, danca, lanche = carregar_ficheiros(mes)
     
     alunos = pd.read_csv('InputFiles/alunos.csv', sep=';')
-    precos = pd.read_csv('InputFiles/precos.csv', sep=';')  
-    #TODO: adicionar recolha de dados do ficheiro RecebimentosNumerario.xls e imprimir para ficheiro output
+    precos = pd.read_csv('InputFiles/precos.csv', sep=';')
+    
     dados_saida = []
-
-    # Obter o mês anterior
     mes_anterior = obter_mes_anterior(mes)
     saldo_anterior = 0
-    df_anterior = pd.DataFrame()  # Inicializa df_anterior como um DataFrame vazio
-    #print(caf_acolhimento['Contribuinte'].unique())  # Ver os contribuintes no DataFrame
+    df_anterior = pd.DataFrame()
 
     if mes_anterior:
         caminho_relatorio_anterior = os.path.join(mes_anterior, f'relatorioMensal_{mes_anterior}.xlsx')
-        #print(f"CaminhoMesAnterior. {caminho_relatorio_anterior.capitalize()}")
-        
         if os.path.exists(caminho_relatorio_anterior):
             df_anterior = pd.read_excel(caminho_relatorio_anterior)
             saldo_anterior = df_anterior['Saldo'].sum() if 'Saldo' in df_anterior.columns else 0
-            #print(f"Saldo Anterior lido: {saldo_anterior}")  # Debug: imprimir saldo anterior
-        else:
-            #print(f"Relatório anterior não encontrado para o mês de {mes_anterior}. Saldo anterior será 0.")
 
     for _, aluno in alunos.iterrows():
         nome = aluno['Nome']
         contribuinte = aluno['Contribuinte']
         associado = aluno['Associado']
         
-        # Obter o saldo anterior do contribuinte do relatório anterior
         if 'Contribuinte' in df_anterior.columns and 'Saldo' in df_anterior.columns:
             saldo_anterior = df_anterior.loc[df_anterior['Contribuinte'] == contribuinte, 'Saldo']
             saldo_anterior = saldo_anterior.values[0] if not saldo_anterior.empty else 0
         else:
-            saldo_anterior = 0  # Se não houver dados anteriores, define como 0
+            saldo_anterior = 0
     
         nr_acolhimento = calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento)
         nr_prolongamento = calcular_nr_dias_prolongamento(contribuinte, caf_prolongamento)
@@ -171,36 +162,30 @@ def gerar_relatorioMensal(mes):
         preco_danca = calcular_preco_danca(contribuinte, danca, precos, mes, associado)
         preco_lanche = calcular_preco_lanche(contribuinte, lanche, precos, mes, associado)
         
-        valor_recebido = ''  # Deixamos em branco para inserção manual
-        recibo = ''  # Deixamos em branco para inserção manual
-        # Debug: imprimir valores para verificar se tudo está correto
-        
-        #print(f"Nome: {nome}, Acolhimento: {nr_acolhimento}, Prolongamento: {nr_prolongamento}, Preco CAF: {preco_caf}, Preco Dança: {preco_danca}, Preco Lanche: {preco_lanche}, Saldo Anterior: {saldo_anterior}")
-        
-        # Ajustar fórmula para o saldo
+        valor_recebido = ''
+        recibo = ''
         saldo_formula = f"=I{len(dados_saida) + 2} + J{len(dados_saida) + 2} - (F{len(dados_saida) + 2} + G{len(dados_saida) + 2} + H{len(dados_saida) + 2})"
     
         dados_saida.append([nome, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido, saldo_anterior, saldo_formula, recibo])
 
-    # Converter para DataFrame
     df_saida = pd.DataFrame(dados_saida, columns=[
         'Nome', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Valor Recebido', 'Saldo Anterior', 'Saldo', 'Recibo'
     ])
 
     caminho_relatorio = os.path.join(mes, f'relatorioMensal_{mes}.xlsx')
 
+    # Exportar para Excel e aplicar formatações
     with pd.ExcelWriter(caminho_relatorio, engine='openpyxl') as writer:
         df_saida.to_excel(writer, index=False, sheet_name='relatorioMensal')
-
-        # Acessando a planilha do Excel para formatar
+        
         workbook = writer.book
         worksheet = writer.sheets['relatorioMensal']
 
         # Definir larguras das colunas
         column_widths = {
-            'A':  12.3,  # Nome
+            'A':  42.0,  # Nome
             'B':  12.3,  # Associado
-            'C':  12.3,  # Contribuinte
+            'C':  15.0,  # Contribuinte
             'D':  12.3,  # Nr Acolhimento
             'E':  12.3,  # Nr Prolongamento
             'F':  12.3,  # Preco CAF
@@ -216,34 +201,22 @@ def gerar_relatorioMensal(mes):
         for col, width in column_widths.items():
             worksheet.column_dimensions[col].width = width
 
-        # OCULTAR as colunas E e F (Nr Prolongamento e Preco CAF neste caso)
-        cols_to_hide = ['F', 'G', 'H']  # Colunas que você deseja ocultar
-        for col in cols_to_hide:
-            worksheet.column_dimensions[col].hidden = True
-
-    # Backup do relatório se já existir
-    if os.path.exists(caminho_relatorio):
-        # Criar um nome de backup com timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        caminho_backup = os.path.join(mes, f'relatorioMensal_backup_{mes}_{timestamp}.xlsx')
-        shutil.copy(caminho_relatorio, caminho_backup)
-
-    # Após exportar para Excel e formatar
-    with pd.ExcelWriter(caminho_relatorio, engine='openpyxl') as writer:
-        df_saida.to_excel(writer, index=False, sheet_name='relatorioMensal')
-        workbook = writer.book
-        worksheet = writer.sheets['relatorioMensal']
-    
+        # Ocultar colunas específicas
+        #cols_to_hide = ['F', 'G', 'H']  # Colunas que você deseja ocultar
+        #for col in cols_to_hide:
+        #    worksheet.column_dimensions[col].hidden = True
+        
+        # Definir altura das linhas
         worksheet.row_dimensions[1].height = 33.75  # Largura da linha de cabeçalho
         for row in range(2, len(dados_saida) + 2):
             worksheet.row_dimensions[row].height = 15  # Largura das outras linhas
-    
+
         # Formatação de "wrap text" na primeira linha (cabeçalho)
         for cell in worksheet[1]:  # Linha do cabeçalho
             cell.alignment = cell.alignment.copy(wrap_text=True)
     
         # Formatação de moeda para as colunas especificadas
-        colunas_moeda = [6, 7, 8, 9, 10, 11]  # Índices das colunas para PrecoCAF, PrecoDanca, PrecoLanche, ValorRecebido, SaldoAnterior, Saldo
+        colunas_moeda = [6, 7, 8, 9, 10, 11]  # Índices das colunas para PrecoCAF, PrecoDanca, etc.
     
         for col in colunas_moeda:
             for row in range(2, len(dados_saida) + 2):
@@ -255,7 +228,7 @@ def gerar_relatorioMensal(mes):
             saldo_cell = worksheet.cell(row=row, column=11)  # Coluna "Saldo" é a 11ª
             saldo_cell.font = Font(color="0000FF")  # Padrão azul
             
-            saldoAnterior_cell = worksheet.cell(row=row, column=10)  # Coluna "SaldoAnterior" é a 10ª
+            saldoAnterior_cell = worksheet.cell(row=row, column=10)  # Coluna "SaldoAnterior"
             saldoAnterior_cell.font = Font(color="0000FF")  # Padrão azul
         
             # Adicionar formatação condicional para a coluna "Saldo"
@@ -270,6 +243,11 @@ def gerar_relatorioMensal(mes):
                 CellIsRule(operator='lessThan', formula=['0'], stopIfTrue=True, font=Font(color='FF0000'))  # Vermelho se menor que zero
             )
 
+    # Backup do relatório
+    if os.path.exists(caminho_relatorio):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        caminho_backup = os.path.join(mes, f'relatorioMensal_backup_{mes}_{timestamp}.xlsx')
+        shutil.copy(caminho_relatorio, caminho_backup)
 # Função para obter o mês anterior
 def obter_mes_anterior(mes):
     meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
