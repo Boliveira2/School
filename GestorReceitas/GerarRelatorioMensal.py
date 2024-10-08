@@ -197,7 +197,7 @@ def gerar_relatorioMensal(mes):
             'L':  12.3   # Recibo
         }
 
-        # Aplicar larguras de coluna
+        # Aplicar larguras de coluna 9
         for col, width in column_widths.items():
             worksheet.column_dimensions[col].width = width
 
