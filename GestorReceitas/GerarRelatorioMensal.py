@@ -163,13 +163,14 @@ def gerar_relatorioMensal(mes):
         preco_lanche = calcular_preco_lanche(contribuinte, lanche, precos, mes, associado)
         
         valor_recebido = ''
+        valor_recebido_num = ''
         recibo = ''
-        saldo_formula = f"=I{len(dados_saida) + 2} + J{len(dados_saida) + 2} - (F{len(dados_saida) + 2} + G{len(dados_saida) + 2} + H{len(dados_saida) + 2})"
+        saldo_formula = f"=J{len(dados_saida) + 2} + K{len(dados_saida) + 2} - (F{len(dados_saida) + 2} + G{len(dados_saida) + 2} + H{len(dados_saida) + 2})"
     
-        dados_saida.append([nome, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido, saldo_anterior, saldo_formula, recibo])
+        dados_saida.append([nome, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido_num, valor_recebido, saldo_anterior, saldo_formula, recibo])
 
     df_saida = pd.DataFrame(dados_saida, columns=[
-        'Nome', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Valor Recebido', 'Saldo Anterior', 'Saldo', 'Recibo'
+        'Nome', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Valor Recebido Num', 'Valor Recebido Transf', 'Saldo Anterior', 'Saldo', 'Recibo'
     ])
 
     caminho_relatorio = os.path.join(mes, f'relatorioMensal_{mes}.xlsx')
@@ -197,7 +198,7 @@ def gerar_relatorioMensal(mes):
             'L':  12.3   # Recibo
         }
 
-        # Aplicar larguras de coluna 9
+        # Aplicar larguras de coluna
         for col, width in column_widths.items():
             worksheet.column_dimensions[col].width = width
 
@@ -207,7 +208,7 @@ def gerar_relatorioMensal(mes):
         #    worksheet.column_dimensions[col].hidden = True
         
         # Definir altura das linhas
-        worksheet.row_dimensions[1].height = 33.75  # Largura da linha de cabeçalho
+        worksheet.row_dimensions[1].height = 46.5  # Largura da linha de cabeçalho
         for row in range(2, len(dados_saida) + 2):
             worksheet.row_dimensions[row].height = 15  # Largura das outras linhas
 
@@ -216,7 +217,7 @@ def gerar_relatorioMensal(mes):
             cell.alignment = cell.alignment.copy(wrap_text=True)
     
         # Formatação de moeda para as colunas especificadas
-        colunas_moeda = [6, 7, 8, 9, 10, 11]  # Índices das colunas para PrecoCAF, PrecoDanca, etc.
+        colunas_moeda = [6, 7, 8, 9, 10, 11, 12]  # Índices das colunas para PrecoCAF, PrecoDanca, etc.
     
         for col in colunas_moeda:
             for row in range(2, len(dados_saida) + 2):
@@ -225,21 +226,21 @@ def gerar_relatorioMensal(mes):
     
         # Formatação condicional para a coluna "Saldo"
         for row in range(2, len(dados_saida) + 2):
-            saldo_cell = worksheet.cell(row=row, column=11)  # Coluna "Saldo" é a 11ª
+            saldo_cell = worksheet.cell(row=row, column=12)  # Coluna "Saldo" é a 11ª
             saldo_cell.font = Font(color="0000FF")  # Padrão azul
             
-            saldoAnterior_cell = worksheet.cell(row=row, column=10)  # Coluna "SaldoAnterior"
+            saldoAnterior_cell = worksheet.cell(row=row, column=11)  # Coluna "SaldoAnterior"
             saldoAnterior_cell.font = Font(color="0000FF")  # Padrão azul
         
             # Adicionar formatação condicional para a coluna "Saldo"
             worksheet.conditional_formatting.add(
-                f'K{row}',  # Coluna "Saldo" (K)
+                f'L{row}',  # Coluna "Saldo" (L)
                 CellIsRule(operator='lessThan', formula=['0'], stopIfTrue=True, font=Font(color='FF0000'))  # Vermelho se menor que zero
             )
         
             # Adicionar formatação condicional para a coluna "Saldo Anterior"
             worksheet.conditional_formatting.add(
-                f'J{row}',  # Coluna "Saldo Anterior" (J)
+                f'K{row}',  # Coluna "Saldo Anterior" (J)
                 CellIsRule(operator='lessThan', formula=['0'], stopIfTrue=True, font=Font(color='FF0000'))  # Vermelho se menor que zero
             )
 
