@@ -25,6 +25,31 @@ def carregar_ficheiros(mes):
 def calcular_custo(nr_dias, preco_unitario):
     return min(nr_dias * 2, preco_unitario)
 
+def obter_valor_recebido_numerario(contribuinte, recebimentos):
+    # Remove espaços extras dos nomes das colunas e garante que o contribuinte seja uma string
+    recebimentos.columns = recebimentos.columns.str.strip()
+    recebimentos['Contribuinte'] = recebimentos['Contribuinte'].astype(str).str.strip()
+
+    # Procura pelo contribuinte no DataFrame
+    aluno_recebimentos = recebimentos[recebimentos['Contribuinte'] == str(contribuinte).strip()]
+    
+    # Se o contribuinte não for encontrado, retorna 0
+    if aluno_recebimentos.empty:
+        print(f"Nenhum registro encontrado para o contribuinte: {contribuinte}")
+        return 0
+
+    # Substitui NaN por 0 nos valores de CAF, Lanche, Dança e Cota, e soma os valores para o contribuinte
+    valor_recebido_num = aluno_recebimentos[['CAF', 'Lanche', 'Dança', 'Cota']].fillna(0).sum(axis=1).values[0]
+    
+    return valor_recebido_num
+
+
+def carregar_recebimentos_numerario(mes):
+    caminho_recebimentos = os.path.join(mes, 'recebimentosnumerario.xlsx')
+    recebimentos = pd.read_excel(caminho_recebimentos)
+    return recebimentos
+
+
 # Função para calcular número de dias de acolhimento
 def calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento):
     # Remove espaços extras dos nomes das colunas e garante que o contribuinte seja uma string
@@ -42,6 +67,8 @@ def calcular_nr_dias_acolhimento(contribuinte, caf_acolhimento):
     #print(f"Registros encontrados para {contribuinte}: {aluno_acolhimento}")
     
     # Substitui "falta" por 0, preenche NaN com 0, e soma os valores nas colunas de dias
+    #return pd.to_numeric(aluno_acolhimento.iloc[:, 2:].replace('falta', 0).fillna(0)).sum(axis=1).values[0]
+
     return aluno_acolhimento.iloc[:, 2:].replace('falta', 0).fillna(0).sum(axis=1).values[0]
 
 # Função para calcular número de dias de prolongamento
@@ -61,6 +88,8 @@ def calcular_nr_dias_prolongamento(contribuinte, caf_prolongamento):
     #print(f"Registros encontrados para {contribuinte}: {aluno_prolongamento}")
     
     # Substitui "falta" por 0, preenche NaN com 0, e soma os valores nas colunas de dias
+    #return pd.to_numeric(aluno_prolongamento.iloc[:, 2:].replace('falta', 0).fillna(0)).sum(axis=1).values[0]
+
     return aluno_prolongamento.iloc[:, 2:].replace('falta', 0).fillna(0).sum(axis=1).values[0]
 
 # Função para calcular o preço de Dança
@@ -128,11 +157,12 @@ def calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, pr
 
 # Geração de relatório mensal
 def gerar_relatorioMensal(mes):
+    # Carregar todos os ficheiros necessários
     caf_acolhimento, caf_prolongamento, danca, lanche = carregar_ficheiros(mes)
-    
+    recebimentos = carregar_recebimentos_numerario(mes)  # Novo ficheiro de recebimentos numerário
     alunos = pd.read_csv('InputFiles/alunos.csv', sep=';')
     precos = pd.read_csv('InputFiles/precos.csv', sep=';')
-    
+
     dados_saida = []
     mes_anterior = obter_mes_anterior(mes)
     saldo_anterior = 0
@@ -161,9 +191,11 @@ def gerar_relatorioMensal(mes):
         preco_caf = calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, precos, associado)
         preco_danca = calcular_preco_danca(contribuinte, danca, precos, mes, associado)
         preco_lanche = calcular_preco_lanche(contribuinte, lanche, precos, mes, associado)
+
+        # Novo cálculo do valor recebido numerário
+        valor_recebido_num = obter_valor_recebido_numerario(contribuinte, recebimentos)
         
         valor_recebido = ''
-        valor_recebido_num = ''
         recibo = ''
         saldo_formula = f"=J{len(dados_saida) + 2} + K{len(dados_saida) + 2} - (F{len(dados_saida) + 2} + G{len(dados_saida) + 2} + H{len(dados_saida) + 2})"
     
