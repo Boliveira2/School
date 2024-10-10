@@ -13,14 +13,17 @@ def carregar_ficheiros(mes):
     caminho_caf = os.path.join(mes, 'CAF.xlsx')
     caminho_danca = os.path.join(mes, 'Danca.xlsx')
     caminho_lanche = os.path.join(mes, 'Lanche.xlsx')
-
+    caminho_recebimentos = os.path.join(mes, 'recebimentosnumerario.xlsx')
+    
+ 
     # Carregar os dados
     caf_acolhimento = pd.read_excel(caminho_caf, sheet_name='Acolhimento')
     caf_prolongamento = pd.read_excel(caminho_caf, sheet_name='Prolongamento')
     danca = pd.read_excel(caminho_danca)
     lanche = pd.read_excel(caminho_lanche)
+    recebimentos = pd.read_excel(caminho_recebimentos)
 
-    return caf_acolhimento, caf_prolongamento, danca, lanche
+    return caf_acolhimento, caf_prolongamento, danca, lanche, recebimentos
 
 def calcular_custo(nr_dias, preco_unitario):
     return min(nr_dias * 2, preco_unitario)
@@ -42,12 +45,6 @@ def obter_valor_recebido_numerario(contribuinte, recebimentos):
     valor_recebido_num = aluno_recebimentos[['CAF', 'Lanche', 'Dança', 'Cota']].fillna(0).sum(axis=1).values[0]
     
     return valor_recebido_num
-
-
-def carregar_recebimentos_numerario(mes):
-    caminho_recebimentos = os.path.join(mes, 'recebimentosnumerario.xlsx')
-    recebimentos = pd.read_excel(caminho_recebimentos)
-    return recebimentos
 
 
 # Função para calcular número de dias de acolhimento
@@ -158,8 +155,8 @@ def calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, pr
 # Geração de relatório mensal
 def gerar_relatorioMensal(mes):
     # Carregar todos os ficheiros necessários
-    caf_acolhimento, caf_prolongamento, danca, lanche = carregar_ficheiros(mes)
-    recebimentos = carregar_recebimentos_numerario(mes)  # Novo ficheiro de recebimentos numerário
+    caf_acolhimento, caf_prolongamento, danca, lanche, recebimentos = carregar_ficheiros(mes)
+
     alunos = pd.read_csv('InputFiles/alunos.csv', sep=';')
     precos = pd.read_csv('InputFiles/precos.csv', sep=';')
 
