@@ -1,25 +1,5 @@
 import pandas as pd
-import unicodedata
-import re
-
-def normalizar_nome(nome):
-    """
-    Normaliza o nome removendo acentuação, convertendo para minúsculas,
-    removendo espaços extras e caracteres não alfabéticos.
-    """
-    if isinstance(nome, str):  # Verifica se o nome é uma string
-        # Normaliza acentuação e remove caracteres especiais
-        nome_normalizado = unicodedata.normalize('NFKD', nome).encode('ASCII', 'ignore').decode('ASCII')
-        
-        # Converte para minúsculas, remove espaços extras e caracteres especiais
-        nome_normalizado = nome_normalizado.lower()
-        nome_normalizado = re.sub(r'\s+', ' ', nome_normalizado)  # Remove espaços extras
-        nome_normalizado = nome_normalizado.strip()  # Remove espaços no início e no fim
-        nome_normalizado = re.sub(r'[^\w\s]', '', nome_normalizado)  # Remove caracteres não alfabéticos
-        
-        return nome_normalizado
-    else:
-        return ''  # Se não for uma string, retorna uma string vazia
+import os
 
 def carregar_transferencias(arquivo_transferencias):
     """
@@ -48,12 +28,12 @@ def carregar_transferencias(arquivo_transferencias):
 
     return df
 
-def buscar_aluno_e_contribuinte(df_transferencias, arquivo_entradas, arquivo_alunos):
+def buscar_aluno_e_contribuinte(df_transferencias, arquivo_entradas, arquivo_alunos, arquivo_transferencias):
     """
     Para cada linha em transferências, procura o aluno correspondente na aba 'entradas' e o NIF no arquivo 'alunos.csv'.
     """
     # Carregar o arquivo de entradas
-    entradas_df = pd.read_excel(arquivo_entradas, sheet_name='entradas')
+    entradas_df = pd.read_excel(arquivo_entradas, sheet_name='entradas')  # Corrigido para ler diretamente do arquivo
 
     # Carregar o arquivo de alunos para o cross-check do NIF
     alunos_df = pd.read_csv(arquivo_alunos, sep=';')
@@ -66,34 +46,39 @@ def buscar_aluno_e_contribuinte(df_transferencias, arquivo_entradas, arquivo_alu
     for idx, row in df_transferencias.iterrows():
         descricao = row['Descrição']
         alunos_str = ''  # Inicializar alunos_str aqui
-        alunos_unicos = set()  # Usar um set para evitar duplicatas de alunos
+        contribuintes_unicos = set()  # Usar um set para evitar duplicatas de contribuintes
 
-        # Encontrar correspondência na aba 'entradas', sem usar regex
-        alunos_correspondentes = entradas_df[entradas_df['Descrição'].str.contains(descricao, case=False, na=False, regex=False)]
+        # Encontrar correspondência exata na aba 'entradas'
+        alunos_correspondentes = entradas_df[entradas_df['Descrição'].str.strip() == descricao.strip()]
 
         if not alunos_correspondentes.empty:
             alunos_list = alunos_correspondentes['aluno'].unique()
 
-            # Normalizar nomes dos alunos
+            # Agora, buscar o NIF do aluno no arquivo de alunos
             for aluno in alunos_list:
-                aluno_normalizado = normalizar_nome(aluno)
-                if aluno_normalizado:  # Adicionar apenas nomes válidos
-                    alunos_unicos.add(aluno_normalizado)
+                if isinstance(aluno, str):  # Verifica se o aluno é uma string
+                    alunos_str += aluno + ', '  # Adicionar o nome ao string de alunos
 
-            alunos_str = ', '.join([aluno for aluno in alunos_unicos])  # Concatenar alunos únicos
+                    # Buscar o NIF do aluno no arquivo de alunos
+                    aluno_match = alunos_df[alunos_df['Nome'].str.strip() == aluno.strip()]
+                    if not aluno_match.empty:
+                        contrib = aluno_match['Contribuinte'].values[0]
+                        contribuintes_unicos.add(contrib)  # Adiciona o contribuinte à lista de contribuintes
+
+            # Remover a última vírgula da string de alunos, se houver
+            if alunos_str.endswith(', '):
+                alunos_str = alunos_str[:-2]
+
+            # Salvar a string de alunos na coluna 'aluno'
             df_transferencias.at[idx, 'aluno'] = alunos_str
 
-        # Agora, buscar o NIF do aluno no arquivo de alunos
-        if alunos_str:
-            for aluno in alunos_unicos:
-                aluno_match = alunos_df[alunos_df['Nome'].apply(normalizar_nome).str.contains(aluno, case=False, na=False)]
-                if not aluno_match.empty:
-                    # Supondo que há uma correspondência única
-                    contrib = aluno_match['Contribuinte'].values[0]
-                    df_transferencias.at[idx, 'Contribuinte'] = contrib
-                    break  # Se tiver encontrado o NIF, já pode parar a busca para este aluno
+        # Se houver múltiplos contribuintes, concatená-los como string
+        if contribuintes_unicos:
+            contribuintes_str = ', '.join(contribuintes_unicos)  # Concatena os contribuintes separados por vírgula
+            df_transferencias.at[idx, 'Contribuinte'] = contribuintes_str
 
     return df_transferencias
+
 
 def salvar_arquivo(df, arquivo_saida):
     """
@@ -102,20 +87,69 @@ def salvar_arquivo(df, arquivo_saida):
     df.to_excel(arquivo_saida, index=False, engine='openpyxl', encoding='utf-8')
     print(f"Arquivo salvo em: {arquivo_saida}")
 
-# Exemplo de uso
-arquivo_transferencias = 'InputFiles/transferencias.xlsx'
-arquivo_entradas = 'InputFiles/transferencias.xlsx'  # Aba 'entradas' para consulta
-arquivo_alunos = 'InputFiles/alunos.csv'  # Arquivo com os NIFs
-arquivo_saida = 'transferencias_com_alunos_e_contribuintes.xlsx'  # Novo caminho para Excel
+# Função principal
+def main():
+    arquivo_alunos = 'InputFiles/alunos.csv'  # Caminho para o arquivo com os NIFs
+    arquivo_entradas = 'InputFiles/entradas.xlsx'
+                
+    meses = [
+        "janeiro", "fevereiro", "março", "abril",
+        "maio", "junho", "julho", "agosto",
+        "setembro", "outubro", "novembro", "dezembro"
+    ]
+    print("##### ASSOCIAÇÃO DE PAIS ESCOLA DA FEIRA NOVA #####")
+    print("Analizador de transferências")
+    print("---------------------")
+    print("Escolha um mês para preparar as transferências:")
 
-# Carregar transferências
-df_transferencias = carregar_transferencias(arquivo_transferencias)
+    for i, mes in enumerate(meses, start=1):
+        print(f"{i}. {mes.capitalize()}")
 
-# Buscar alunos e Contribuintes e adicionar ao DataFrame
-df_final = buscar_aluno_e_contribuinte(df_transferencias, arquivo_entradas, arquivo_alunos)
+    print("0. Sair")
 
-# Salvar o arquivo final como Excel
-salvar_arquivo(df_final, arquivo_saida)
+    while True:
+        try:
+            # Captura a escolha do usuário
+            escolha = input("Digite o número do mês (0 para sair): ").strip()
+            
+            # Verifica se a entrada é um número válido
+            if not escolha.isdigit():
+                raise ValueError("Por favor, insira um número válido.")
+            
+            escolha = int(escolha)  # Converte a entrada para inteiro
 
-# Exibir o DataFrame final
-print(df_final)
+            if escolha == 0:
+                print("Obrigado e Bom Trabalho...")
+                break
+            elif 1 <= escolha <= 12:
+                mes_selecionado = meses[escolha - 1]
+                
+                # Definir o caminho correto do arquivo de transferências
+                arquivo_transferencias = os.path.join(mes_selecionado, 'transferencias.xlsx')
+                arquivo_saida = os.path.join(mes_selecionado, 'transferenciasTratado.xlsx')
+                
+                # Verifica se o arquivo de transferências existe
+                if not os.path.exists(arquivo_transferencias):
+                    print(f"Arquivo {arquivo_transferencias} não encontrado. Verifique o caminho.")
+                    continue
+                
+                # Carregar transferências a partir do arquivo Excel
+                df_transferencias = carregar_transferencias(arquivo_transferencias)
+
+                # Buscar alunos e contribuintes e adicionar ao DataFrame
+                df_final = buscar_aluno_e_contribuinte(df_transferencias, arquivo_entradas, arquivo_alunos, arquivo_transferencias)
+
+                # Salvar o arquivo final como Excel
+                salvar_arquivo(df_final, arquivo_saida)
+               
+                print(f"Transferências analisadas com sucesso para o mês de {mes_selecionado.capitalize()}!")
+            else:
+                print("Opção inválida. Tente novamente.")
+        except ValueError as e:
+            print(e)  # Mostra o erro (ex: "Por favor, insira um número válido.")
+
+
+# Chamada da função principal
+if __name__ == "__main__":
+    main()
+
