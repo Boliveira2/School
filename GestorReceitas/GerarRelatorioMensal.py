@@ -242,7 +242,7 @@ def gerar_relatorioMensal(mes):
             
             valor_recebido = obter_valor_recebido_transf(contribuinte, recebimentos_transf)
             recibo = ''
-            saldo_formula = f"=J{len(dados_saida) + 2} + K{len(dados_saida) + 2} - (F{len(dados_saida) + 2} + G{len(dados_saida) + 2} + H{len(dados_saida) + 2})"
+            saldo_formula = f"=K{len(dados_saida) + 2} + J{len(dados_saida) + 2}   +  L{len(dados_saida) + 2} - (G{len(dados_saida) + 2} + H{len(dados_saida) + 2} + I{len(dados_saida) + 2})"
         
             dados_saida.append([nome, turma, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido_num, valor_recebido, saldo_anterior, saldo_formula, recibo, email])
 
