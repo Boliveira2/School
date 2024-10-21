@@ -220,6 +220,7 @@ def gerar_relatorioMensal(mes):
         for _, aluno in alunos.iterrows():
             nome = aluno['Nome']
             turma = aluno['Turma']
+            email = aluno['Email']
             contribuinte = aluno['Contribuinte']
             associado = aluno['Associado']
             
@@ -243,10 +244,10 @@ def gerar_relatorioMensal(mes):
             recibo = ''
             saldo_formula = f"=J{len(dados_saida) + 2} + K{len(dados_saida) + 2} - (F{len(dados_saida) + 2} + G{len(dados_saida) + 2} + H{len(dados_saida) + 2})"
         
-            dados_saida.append([nome, turma, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido_num, valor_recebido, saldo_anterior, saldo_formula, recibo])
-            #todo: adicionar turma do /inputfiles/alunos
+            dados_saida.append([nome, turma, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido_num, valor_recebido, saldo_anterior, saldo_formula, recibo, email])
+
         df_saida = pd.DataFrame(dados_saida, columns=[
-            'Nome', 'Turma', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Valor Recebido Num', 'Valor Recebido Transf', 'Saldo Anterior', 'Saldo', 'Recibo'
+            'Nome', 'Turma', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Valor Recebido Num', 'Valor Recebido Transf', 'Saldo Anterior', 'Saldo', 'Recibo', 'Email'
         ])
     
         caminho_relatorio = os.path.join(mes, f'relatorioMensal_{mes}.xlsx')
@@ -271,8 +272,9 @@ def gerar_relatorioMensal(mes):
                 'I':  12.3,  # Preco Lanche
                 'J':  12.3,  # Valor Recebido
                 'K':  12.3,  # Saldo Anterior
-                'L':  12.3,   # Saldo
-                'M':  12.3   # Recibo
+                'L':  12.3,  # Saldo
+                'M':  12.3,  # Recibo
+                'N':  12.3   #Email
             }
     
             # Aplicar larguras de coluna
@@ -280,7 +282,7 @@ def gerar_relatorioMensal(mes):
                 worksheet.column_dimensions[col].width = width
     
             # Ocultar colunas específicas
-            #cols_to_hide = ['D', 'E', 'F']  # Colunas que você deseja ocultar
+            cols_to_hide = ['D', 'E', 'F', 'N']  # Colunas que você deseja ocultar
             #for col in cols_to_hide:
             #    worksheet.column_dimensions[col].hidden = True
             
