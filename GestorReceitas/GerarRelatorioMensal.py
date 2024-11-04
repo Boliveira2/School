@@ -283,8 +283,8 @@ def gerar_relatorioMensal(mes):
     
             # Ocultar colunas específicas
             cols_to_hide = ['D', 'E', 'F', 'N']  # Colunas que você deseja ocultar
-            #for col in cols_to_hide:
-            #    worksheet.column_dimensions[col].hidden = True
+            for col in cols_to_hide:
+                worksheet.column_dimensions[col].hidden = True
             
             # Definir altura das linhas
             worksheet.row_dimensions[1].height = 46.5  # Largura da linha de cabeçalho
