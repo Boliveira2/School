@@ -336,12 +336,16 @@ def gerar_relatorioMensal(mes):
         
 # Função para obter o mês anterior
 def obter_mes_anterior(mes):
-    meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
+    meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", 
+             "agosto", "setembro", "outubro", "novembro", "dezembro"]
+
     try:
         mes_index = meses.index(mes.strip().lower())
-        return meses[mes_index - 1] if mes_index > 0 else None
+        return meses[mes_index - 1]  # O índice negativo retorna o último mês quando mes_index é 0
     except ValueError:
-        return None
+        return "Mês inválido. Por favor, insira um mês válido em português."
+
+
 
 
 # Função principal
