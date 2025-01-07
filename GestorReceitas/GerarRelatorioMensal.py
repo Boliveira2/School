@@ -331,20 +331,15 @@ def gerar_relatorioMensal(mes):
     except Exception as e:
         # Captura qualquer erro e imprime para ajudar na depuração
         print(f"Erro ao gerar relatório para o mês de {mes}: {str(e)}")
-        
-        
-        
-# Função para obter o mês anterior
-def obter_mes_anterior(mes):
-    meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", 
-             "agosto", "setembro", "outubro", "novembro", "dezembro"]
 
+
+def obter_mes_anterior(mes):
+    meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
     try:
         mes_index = meses.index(mes.strip().lower())
-        return meses[mes_index - 1]  # O índice negativo retorna o último mês quando mes_index é 0
+        return meses[mes_index - 1] if mes_index > 0 else None
     except ValueError:
-        return "Mês inválido. Por favor, insira um mês válido em português."
-
+        return None
 
 
 
