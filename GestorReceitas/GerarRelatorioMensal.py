@@ -15,6 +15,7 @@ def carregar_ficheiros(mes):
         "caf_prolongamento": os.path.join(mes, 'CAF.xlsx'),
         "danca": os.path.join(mes, 'Danca.xlsx'),
         "lanche": os.path.join(mes, 'Lanche.xlsx'),
+        "karate": os.path.join(mes, 'Karate.xlsx'),
         "recebimentos": os.path.join(mes, 'recebimentosnumerario.xlsx'),
         "recebimentos_transf": os.path.join(mes, 'transferenciasTratado.xlsx')
     }
@@ -29,6 +30,7 @@ def carregar_ficheiros(mes):
     caf_prolongamento = pd.read_excel(caminhos["caf_prolongamento"], sheet_name='Prolongamento')
     danca = pd.read_excel(caminhos["danca"])
     lanche = pd.read_excel(caminhos["lanche"])
+    karate = pd.read_excel(caminhos["karate"])
     recebimentos = pd.read_excel(caminhos["recebimentos"])
     recebimentos_transf = pd.read_excel(caminhos["recebimentos_transf"])
 
@@ -150,6 +152,24 @@ def calcular_preco_danca(contribuinte, danca, precos, mes, associado):
     
     return 0
 
+# Função para calcular o preço de Karate
+def calcular_preco_karate(contribuinte, karate, precos, mes, associado):
+    # Remove espaços extras dos nomes das colunas e garante que o contribuinte seja uma string
+    karate.columns = karate.columns.str.strip()
+    karate['Contribuinte'] = karate['Contribuinte'].astype(str).str.strip()
+
+    # Procura pelo contribuinte no DataFrame
+    aluno_karate = karate[karate['Contribuinte'] == str(contribuinte).strip()]
+    
+    # Se o aluno frequenta dança, retorna o preço
+    if not aluno_karate.empty and aluno_karate['Frequenta'].notna().any() and (aluno_karate['Frequenta'] != 0).any():
+        if associado == 0:
+            return precos[precos['Mês'] == mes]['Preço Karate'].values[0]
+        else:
+            return precos[precos['Mês'] == mes]['Preço Karate Associado'].values[0]
+    
+    return 0
+
 # Função para calcular o preço de Lanche
 def calcular_preco_lanche(contribuinte, lanche, precos, mes, associado):
     # Remove espaços extras dos nomes das colunas e garante que o contribuinte seja uma string
@@ -201,7 +221,7 @@ def gerar_relatorioMensal(mes):
         # Debug: Verifique se a função está recebendo o parâmetro corretamente
         print(f"Gerando relatório para o mês: {mes}")
         # Carregar todos os ficheiros necessários
-        caf_acolhimento, caf_prolongamento, danca, lanche, recebimentos, recebimentos_transf = carregar_ficheiros(mes)
+        caf_acolhimento, caf_prolongamento, danca, lanche, karate, recebimentos, recebimentos_transf = carregar_ficheiros(mes)
     
         alunos = pd.read_csv('InputFiles/alunos.csv', sep=';')
         precos = pd.read_csv('InputFiles/precos.csv', sep=';')
@@ -236,18 +256,18 @@ def gerar_relatorioMensal(mes):
             preco_caf = calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, precos, associado)
             preco_danca = calcular_preco_danca(contribuinte, danca, precos, mes, associado)
             preco_lanche = calcular_preco_lanche(contribuinte, lanche, precos, mes, associado)
-    
+            preco_karate = calcular_preco_karate(contribuinte, karate, precos, mes, associado)
             # Novo cálculo do valor recebido numerário
             valor_recebido_num = obter_valor_recebido_numerario(contribuinte, recebimentos)
             
             valor_recebido = obter_valor_recebido_transf(contribuinte, recebimentos_transf)
             recibo = ''
-            saldo_formula = f"=K{len(dados_saida) + 2} + J{len(dados_saida) + 2}   +  L{len(dados_saida) + 2} - (G{len(dados_saida) + 2} + H{len(dados_saida) + 2} + I{len(dados_saida) + 2})"
+            saldo_formula = f"=J{len(dados_saida) + 2} + K{len(dados_saida) + 2}   +  L{len(dados_saida) + 2} - (G{len(dados_saida) + 2} + H{len(dados_saida) + 2} + I{len(dados_saida) + 2} + J{len(dados_saida) + 2})"
         
-            dados_saida.append([nome, turma, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, valor_recebido_num, valor_recebido, saldo_anterior, saldo_formula, recibo, email])
+            dados_saida.append([nome, turma, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, preco_karate, valor_recebido_num, valor_recebido, saldo_anterior, saldo_formula, recibo, email])
 
         df_saida = pd.DataFrame(dados_saida, columns=[
-            'Nome', 'Turma', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Valor Recebido Num', 'Valor Recebido Transf', 'Saldo Anterior', 'Saldo', 'Recibo', 'Email'
+            'Nome', 'Turma', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Preço Karate', 'Valor Recebido Num', 'Valor Recebido Transf', 'Saldo Anterior', 'Saldo', 'Recibo', 'Email', 'Notas',
         ])
     
         caminho_relatorio = os.path.join(mes, f'relatorioMensal_{mes}.xlsx')
@@ -271,10 +291,11 @@ def gerar_relatorioMensal(mes):
                 'H':  12.3,  # Preco Danca
                 'I':  12.3,  # Preco Lanche
                 'J':  12.3,  # Valor Recebido
-                'K':  12.3,  # Saldo Anterior
-                'L':  12.3,  # Saldo
-                'M':  12.3,  # Recibo
-                'N':  12.3   #Email
+                'K':  12.3,  # Valor Recebido
+                'L':  12.3,  # Saldo Anterior
+                'M':  12.3,  # Saldo
+                'N':  12.3,  # Recibo
+                'O':  12.3   # Email
             }
     
             # Aplicar larguras de coluna
@@ -296,7 +317,7 @@ def gerar_relatorioMensal(mes):
                 cell.alignment = cell.alignment.copy(wrap_text=True)
         
             # Formatação de moeda para as colunas especificadas
-            colunas_moeda = [7, 8, 9, 10, 11, 12, 13]  # Índices das colunas para PrecoCAF, PrecoDanca, etc.
+            colunas_moeda = [7, 8, 9, 10, 11, 12, 13, 14]  # Índices das colunas para PrecoCAF, PrecoDanca, etc.
         
             for col in colunas_moeda:
                 for row in range(2, len(dados_saida) + 2):
@@ -305,21 +326,21 @@ def gerar_relatorioMensal(mes):
         
             # Formatação condicional para a coluna "Saldo"
             for row in range(2, len(dados_saida) + 2):
-                saldo_cell = worksheet.cell(row=row, column=13)  # Coluna "Saldo" é a 11ª
+                saldo_cell = worksheet.cell(row=row, column=14)  # Coluna "Saldo" é a 14ª
                 saldo_cell.font = Font(color="0000FF")  # Padrão azul
                 
-                saldoAnterior_cell = worksheet.cell(row=row, column=12)  # Coluna "SaldoAnterior"
+                saldoAnterior_cell = worksheet.cell(row=row, column=13)  # Coluna "SaldoAnterior"é a 13ª
                 saldoAnterior_cell.font = Font(color="0000FF")  # Padrão azul
             
                 # Adicionar formatação condicional para a coluna "Saldo"
                 worksheet.conditional_formatting.add(
-                    f'M{row}',  # Coluna "Saldo" (M)
+                    f'N{row}',  # Coluna "Saldo" (M)
                     CellIsRule(operator='lessThan', formula=['0'], stopIfTrue=True, font=Font(color='FF0000'))  # Vermelho se menor que zero
                 )
             
                 # Adicionar formatação condicional para a coluna "Saldo Anterior"
                 worksheet.conditional_formatting.add(
-                    f'L{row}',  # Coluna "Saldo Anterior" (L)
+                    f'M{row}',  # Coluna "Saldo Anterior" (L)
                     CellIsRule(operator='lessThan', formula=['0'], stopIfTrue=True, font=Font(color='FF0000'))  # Vermelho se menor que zero
                 )
     
@@ -337,7 +358,9 @@ def obter_mes_anterior(mes):
     meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
     try:
         mes_index = meses.index(mes.strip().lower())
-        return meses[mes_index - 1] if mes_index > 0 else None
+        if mes_index == 0:
+            return meses[-1]  # Retorna dezembro se for janeiro
+        return meses[mes_index - 1]
     except ValueError:
         return None
 
