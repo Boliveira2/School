@@ -262,12 +262,12 @@ def gerar_relatorioMensal(mes):
             
             valor_recebido = obter_valor_recebido_transf(contribuinte, recebimentos_transf)
             recibo = ''
-            saldo_formula = f"=J{len(dados_saida) + 2} + K{len(dados_saida) + 2}   +  L{len(dados_saida) + 2} - (G{len(dados_saida) + 2} + H{len(dados_saida) + 2} + I{len(dados_saida) + 2} + J{len(dados_saida) + 2})"
+            saldo_formula = f"=J{len(dados_saida) + 2} + K{len(dados_saida) + 2}   +  L{len(dados_saida) + 2} - (G{len(dados_saida) + 2} + H{len(dados_saida) + 2} + I{len(dados_saida) + 2} + J{len(dados_saida) + 2} + Q{len(dados_saida) + 2} )"
         
             dados_saida.append([nome, turma, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, preco_karate, valor_recebido_num, valor_recebido, saldo_anterior, saldo_formula, recibo, email])
 
         df_saida = pd.DataFrame(dados_saida, columns=[
-            'Nome', 'Turma', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Preço Karate', 'Valor Recebido Num', 'Valor Recebido Transf', 'Saldo Anterior', 'Saldo', 'Recibo', 'Email', 'Notas',
+            'Nome', 'Turma', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Preço Karate', 'Valor Recebido Num', 'Valor Recebido Transf', 'Saldo Anterior', 'Saldo', 'Recibo', 'Email', 'Notas', 'ADICIONAIS'
         ])
     
         caminho_relatorio = os.path.join(mes, f'relatorioMensal_{mes}.xlsx')
@@ -281,21 +281,23 @@ def gerar_relatorioMensal(mes):
     
             # Definir larguras das colunas
             column_widths = {
-                'A':  42.0,  # Nome
-                'B':  12.3,  # Turma
-                'C':  15.0,  # Associado
-                'D':  12.3,  # Contribuinte
-                'E':  12.3,  # Nr Acolhimento
-                'F':  12.3,  # Nr Prolongamento
-                'G':  12.3,  # Preco CAF
-                'H':  12.3,  # Preco Danca
-                'I':  12.3,  # Preco Lanche
-                'J':  12.3,  # Valor Recebido
-                'K':  12.3,  # Valor Recebido
-                'L':  12.3,  # Saldo Anterior
-                'M':  12.3,  # Saldo
-                'N':  12.3,  # Recibo
-                'O':  12.3   # Email
+                'A':  42.0,  # 1 Nome
+                'B':  12.3,  # 2 Turma
+                'C':  15.0,  # 3 Associado
+                'D':  12.3,  # 4 Contribuinte
+                'E':  12.3,  # 5 Nr Acolhimento
+                'F':  12.3,  # 6 Nr Prolongamento
+                'G':  12.3,  # 7 Preco CAF
+                'H':  12.3,  # 8 Preco Danca
+                'I':  12.3,  # 9 Preco Lanche
+                'J':  12.3,  # 10 Preco Karate
+                'K':  12.3,  # 11 Valor Recebido
+                'L':  12.3,  # 12 Valor Recebido
+                'M':  12.3,  # 13 Saldo Anterior
+                'N':  12.3,  # 14 Saldo
+                'O':  12.3,  # 15 Recibo
+                'P':  12.3,  # 16 Email
+                'Q':  12.3   # 17 Adicionais
             }
     
             # Aplicar larguras de coluna
@@ -303,9 +305,9 @@ def gerar_relatorioMensal(mes):
                 worksheet.column_dimensions[col].width = width
     
             # Ocultar colunas específicas
-            cols_to_hide = ['D', 'E', 'F', 'N']  # Colunas que você deseja ocultar
-            for col in cols_to_hide:
-                worksheet.column_dimensions[col].hidden = True
+            # cols_to_hide = ['D', 'E', 'F', 'N']  # Colunas que você deseja ocultar
+            # for col in cols_to_hide:
+            #     worksheet.column_dimensions[col].hidden = True
             
             # Definir altura das linhas
             worksheet.row_dimensions[1].height = 46.5  # Largura da linha de cabeçalho
@@ -326,10 +328,10 @@ def gerar_relatorioMensal(mes):
         
             # Formatação condicional para a coluna "Saldo"
             for row in range(2, len(dados_saida) + 2):
-                saldo_cell = worksheet.cell(row=row, column=14)  # Coluna "Saldo" é a 14ª
+                saldo_cell = worksheet.cell(row=row, column=14)  # Coluna "Saldo"
                 saldo_cell.font = Font(color="0000FF")  # Padrão azul
                 
-                saldoAnterior_cell = worksheet.cell(row=row, column=13)  # Coluna "SaldoAnterior"é a 13ª
+                saldoAnterior_cell = worksheet.cell(row=row, column=13)  # Coluna "SaldoAnterior"
                 saldoAnterior_cell.font = Font(color="0000FF")  # Padrão azul
             
                 # Adicionar formatação condicional para a coluna "Saldo"
