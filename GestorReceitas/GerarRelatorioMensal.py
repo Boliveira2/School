@@ -34,7 +34,7 @@ def carregar_ficheiros(mes):
     recebimentos = pd.read_excel(caminhos["recebimentos"])
     recebimentos_transf = pd.read_excel(caminhos["recebimentos_transf"])
 
-    return caf_acolhimento, caf_prolongamento, danca, lanche, recebimentos, recebimentos_transf
+    return caf_acolhimento, caf_prolongamento, danca, lanche, karate, recebimentos, recebimentos_transf
 
 # Função para limpar e ajustar os valores das colunas
 def ajustar_colunas(df):
@@ -61,7 +61,7 @@ def obter_valor_recebido_numerario(contribuinte, recebimentos):
         return 0
 
     # Substitui NaN por 0 nos valores de CAF, Lanche, Dança e Cota, e soma os valores para o contribuinte
-    valor_recebido_num = aluno_recebimentos[['CAF', 'Lanche', 'Dança', 'Cota']].fillna(0).sum(axis=1).values[0]
+    valor_recebido_num = aluno_recebimentos[['CAF', 'Lanche', 'Dança', 'Cota','Karate']].fillna(0).sum(axis=1).values[0]
     
     return valor_recebido_num
 
