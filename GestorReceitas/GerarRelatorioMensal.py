@@ -19,7 +19,7 @@ def carregar_ficheiros(mes):
         "recebimentos": os.path.join(mes, 'recebimentosnumerario.xlsx'),
         "recebimentos_transf": os.path.join(mes, 'transferenciasTratado.xlsx')
     }
-
+    print("Criei caminhos")
     # Verificar se os arquivos existem
     for nome, caminho in caminhos.items():
         if not os.path.exists(caminho):
@@ -27,11 +27,17 @@ def carregar_ficheiros(mes):
 
     # Carregar os dados
     caf_acolhimento = pd.read_excel(caminhos["caf_acolhimento"], sheet_name='Acolhimento')
+    print("cheguei ao acolhimento")
     caf_prolongamento = pd.read_excel(caminhos["caf_prolongamento"], sheet_name='Prolongamento')
+    print("cheguei ao prolongamento")
     danca = pd.read_excel(caminhos["danca"])
+    print("cheguei ao danca")
     lanche = pd.read_excel(caminhos["lanche"])
+    print("cheguei ao lanche")
     karate = pd.read_excel(caminhos["karate"])
+    print("cheguei ao karate")
     recebimentos = pd.read_excel(caminhos["recebimentos"])
+    print("cheguei ao recebimentos")
     recebimentos_transf = pd.read_excel(caminhos["recebimentos_transf"])
 
     return caf_acolhimento, caf_prolongamento, danca, lanche, karate, recebimentos, recebimentos_transf
@@ -217,6 +223,7 @@ def calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, pr
 
 # Geração de relatório mensal
 def gerar_relatorioMensal(mes):
+    print("Entrei gerar_relatorioMensal")
     try:
         # Debug: Verifique se a função está recebendo o parâmetro corretamente
         print(f"Gerando relatório para o mês: {mes}")
@@ -224,10 +231,12 @@ def gerar_relatorioMensal(mes):
         caf_acolhimento, caf_prolongamento, danca, lanche, karate, recebimentos, recebimentos_transf = carregar_ficheiros(mes)
     
         alunos = pd.read_csv('InputFiles/alunos.csv', sep=';')
+        print("LI alunos")
         precos = pd.read_csv('InputFiles/precos.csv', sep=';')
-    
+        print("LI precos")
         dados_saida = []
         mes_anterior = obter_mes_anterior(mes)
+        print("mes anterior")
         saldo_anterior = 0
         df_anterior = pd.DataFrame()
     
@@ -267,9 +276,9 @@ def gerar_relatorioMensal(mes):
             dados_saida.append([nome, turma, associado, contribuinte, nr_acolhimento, nr_prolongamento, preco_caf, preco_danca, preco_lanche, preco_karate, valor_recebido_num, valor_recebido, saldo_anterior, saldo_formula, recibo, email])
 
         df_saida = pd.DataFrame(dados_saida, columns=[
-            'Nome', 'Turma', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Preço Karate', 'Valor Recebido Num', 'Valor Recebido Transf', 'Saldo Anterior', 'Saldo', 'Recibo', 'Email', 'Notas', 'ADICIONAIS'
+            'Nome', 'Turma', 'Associado', 'Contribuinte', 'Nr Acolhimento', 'Nr Prolongamento', 'Preco CAF', 'Preco Danca', 'Preco Lanche', 'Preço Karate', 'Valor Recebido Num', 'Valor Recebido Transf', 'Saldo Anterior', 'Saldo', 'Recibo', 'Email',
         ])
-    
+
         caminho_relatorio = os.path.join(mes, f'relatorioMensal_{mes}.xlsx')
     
         # Exportar para Excel e aplicar formatações
@@ -358,13 +367,11 @@ def gerar_relatorioMensal(mes):
 
 def obter_mes_anterior(mes):
     meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
-    try:
-        mes_index = meses.index(mes.strip().lower())
-        if mes_index == 0:
-            return meses[-1]  # Retorna dezembro se for janeiro
-        return meses[mes_index - 1]
-    except ValueError:
-        return None
+    print("CALCULEI MES ANTERIOR")
+    mes_index = meses.index(mes.strip().lower())
+    if mes_index == 0:
+        return meses[11]  # Dezembro do ano anterior
+    return meses[mes_index - 1]
 
 
 
