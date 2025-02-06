@@ -151,10 +151,10 @@ def calcular_preco_danca(contribuinte, danca, precos, mes, associado):
     
     # Se o aluno frequenta dança, retorna o preço
     if not aluno_danca.empty and aluno_danca['Frequenta'].notna().any() and (aluno_danca['Frequenta'] != 0).any():
-        if associado == 0:
-            return precos[precos['Mês'] == mes]['Preço Dança'].values[0]
-        else:
+        if associado == 1:
             return precos[precos['Mês'] == mes]['Preço Dança Associado'].values[0]
+        else:
+            return precos[precos['Mês'] == mes]['Preço Dança'].values[0]
     
     return 0
 
@@ -169,10 +169,10 @@ def calcular_preco_karate(contribuinte, karate, precos, mes, associado):
     
     # Se o aluno frequenta dança, retorna o preço
     if not aluno_karate.empty and aluno_karate['Frequenta'].notna().any() and (aluno_karate['Frequenta'] != 0).any():
-        if associado == 0:
-            return precos[precos['Mês'] == mes]['Preço Karate'].values[0]
-        else:
+        if associado == 1:
             return precos[precos['Mês'] == mes]['Preço Karate Associado'].values[0]
+        else:
+            return precos[precos['Mês'] == mes]['Preço Karate'].values[0]
     
     return 0
 
@@ -187,10 +187,10 @@ def calcular_preco_lanche(contribuinte, lanche, precos, mes, associado):
     
     # Se o aluno frequenta lanche, retorna o preço
     if not aluno_lanche.empty and aluno_lanche['Frequenta'].notna().any() and (aluno_lanche['Frequenta'] != 0).any():
-        if associado == 0:
-            return precos[precos['Mês'] == mes]['Preço Lanche'].values[0]
-        else:
+        if associado == 1:
             return precos[precos['Mês'] == mes]['Preço Lanche Associado'].values[0]
+        else:
+            return precos[precos['Mês'] == mes]['Preço Lanche'].values[0]
     
     return 0
 
@@ -203,17 +203,17 @@ def calcular_preco_caf(contribuinte, mes, caf_acolhimento, caf_prolongamento, pr
     mes = mes.strip().lower()
     
    
-    if (associado == 0):
-        preco_acolhimento = precos[precos['Mês'] == mes]['Preço CAF Acolhimento'].values[0]
-        preco_prolongamento = precos[precos['Mês'] == mes]['Preço CAF Prolongamento'].values[0]
-        preco_caf = precos[precos['Mês'] == mes]['Preço CAF'].values[0]
+    if (associado == 1):
+        preco_acolhimento = precos[precos['Mês'] == mes]['Preço CAF Acolhimento Associado'].values[0]
+        preco_prolongamento = precos[precos['Mês'] == mes]['Preço CAF Prolongamento Associado'].values[0]
+        preco_caf = precos[precos['Mês'] == mes]['Preço CAF Associado'].values[0]
         
         custo_acolhimento = calcular_custo(nr_acolhimento, preco_acolhimento)
         custo_prolongamento = calcular_custo(nr_prolongamento, preco_prolongamento)
     else:
-        preco_acolhimento = precos[precos['Mês'] == mes]['Preço CAF Acolhimento Associado'].values[0]
-        preco_prolongamento = precos[precos['Mês'] == mes]['Preço CAF Prolongamento Associado'].values[0]
-        preco_caf = precos[precos['Mês'] == mes]['Preço CAF Associado'].values[0]
+        preco_acolhimento = precos[precos['Mês'] == mes]['Preço CAF Acolhimento'].values[0]
+        preco_prolongamento = precos[precos['Mês'] == mes]['Preço CAF Prolongamento'].values[0]
+        preco_caf = precos[precos['Mês'] == mes]['Preço CAF'].values[0]
         
         custo_acolhimento = calcular_custo(nr_acolhimento, preco_acolhimento)
         custo_prolongamento = calcular_custo(nr_prolongamento, preco_prolongamento)
