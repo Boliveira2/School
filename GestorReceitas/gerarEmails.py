@@ -2,13 +2,13 @@ import pandas as pd
 import os
 
 # Nome do ficheiro Excel (deve estar no mesmo diretório ou fornecer caminho completo)
-ficheiro_excel = "C:/pessoal/AssociacaodePais/School/GestorReceitas/Março/relatorioMensal_março.xlsx"
+ficheiro_excel = "C:/pessoal/AssociacaodePais/School/GestorReceitas/Abril/relatorioMensal_abril.xlsx"
 
 # Ler a folha do Excel
 df = pd.read_excel(ficheiro_excel)
 
 # Pasta onde os ficheiros serão guardados
-pasta_saida = "C:/pessoal/AssociacaodePais/School/GestorReceitas/Março/emails"
+pasta_saida = "C:/pessoal/AssociacaodePais/School/GestorReceitas/Abril/emails"
 os.makedirs(pasta_saida, exist_ok=True)
 
 # Iterar pelas linhas do DataFrame
@@ -19,7 +19,7 @@ for _, linha in df.iterrows():
     coluna_q = linha.get("Info")  # Pode ser NaN se a coluna não existir ou estiver vazia
 
     # Verifica se saldo é negativo e se a coluna "Q" está vazia
-    if saldo < 0 and (pd.isna(coluna_q) or str(coluna_q).strip() == ""):
+    if saldo < 0 :
         saldo_formatado = f"{abs(saldo):.2f} €"
         nome_ficheiro = f"{nome.replace(' ', '_')}.txt"
         caminho_ficheiro = os.path.join(pasta_saida, nome_ficheiro)
@@ -28,7 +28,7 @@ for _, linha in df.iterrows():
 
 Caro encarregado de educação de {nome} :
 
-À data de 31 de março de 2025 tem um valor em dívida de: {saldo_formatado}. 
+À data de 30 de Abril de 2025 tem um valor em dívida de: {saldo_formatado}. 
 Agradecemos a liquidação o quanto antes. 
 Caso já tenha efetuado o pagamento não considere este email
 
