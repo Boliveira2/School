@@ -2,13 +2,13 @@ import pandas as pd
 import os
 
 # Nome do ficheiro Excel (deve estar no mesmo diretório ou fornecer caminho completo)
-ficheiro_excel = "C:/pessoal/AssociacaodePais/School/GestorReceitas/Abril/relatorioMensal_abril.xlsx"
+ficheiro_excel = "C:/pessoal/AssociacaodePais/School/GestorReceitas/Maio/relatorioMensal_maio.xlsx"
 
 # Ler a folha do Excel
 df = pd.read_excel(ficheiro_excel)
 
 # Pasta onde os ficheiros serão guardados
-pasta_saida = "C:/pessoal/AssociacaodePais/School/GestorReceitas/Abril/emails"
+pasta_saida = "C:/pessoal/AssociacaodePais/School/GestorReceitas/Maio/emails"
 os.makedirs(pasta_saida, exist_ok=True)
 
 # Iterar pelas linhas do DataFrame
@@ -28,7 +28,7 @@ for _, linha in df.iterrows():
 
 Caro encarregado de educação de {nome} :
 
-À data de 30 de Abril de 2025 tem um valor em dívida de: {saldo_formatado}. 
+À data de 31 de Maio de 2025 tem um valor em dívida de: {saldo_formatado}. 
 Agradecemos a liquidação o quanto antes. 
 Caso já tenha efetuado o pagamento não considere este email
 
