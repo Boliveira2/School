@@ -1,4 +1,4 @@
-import pandas as pd
+git fetimport pandas as pd
 import os
 
 # Nome do ficheiro Excel (deve estar no mesmo diretório ou fornecer caminho completo)
