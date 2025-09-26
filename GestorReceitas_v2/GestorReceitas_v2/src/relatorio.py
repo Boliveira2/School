@@ -2,7 +2,7 @@ import os
 import shutil
 from datetime import datetime
 import pandas as pd
-from src.core import carregar_excel, carregar_csv, criar_pasta
+from src.core import carregar_excel, carregar_csv, criar_pasta, carregar_ficheiros
 
 def tem_irmaos(contribuinte, recebimentos_transf):
     linhas = recebimentos_transf[recebimentos_transf['Contribuinte'].str.contains(str(contribuinte), na=False)]
@@ -131,7 +131,7 @@ def gerar_relatorioMensal(caminhos, log_callback=None):
             df_ano = {m: pd.DataFrame() for m in meses}
             log(f"Ficheiro anual {caminho_excel} não existe. Será criado novo.")
 
-        caf_acolhimento, caf_prolongamento, danca, lanche, karate, recebimentos, recebimentos_transf = carregar_ficheiros(mes, log)
+        caf_acolhimento, caf_prolongamento, danca, lanche, karate, recebimentos, recebimentos_transf = carregar_ficheiros(caminhos.get("relatorio_mensal"), mes, log)
         alunos = carregar_csv(caminhos.get("alunos"))
         precos = carregar_csv(caminhos.get("precos"))
 
